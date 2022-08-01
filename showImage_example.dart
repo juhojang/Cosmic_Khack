@@ -16,24 +16,6 @@ class _showImageState extends State<showImage> {
   Widget showImage() {
     return Container(
       color: const Color(0xffd0cece),
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: showImage(),
-    );
-  }
-}
-class _showImageState extends State<showImage> {
-
-
-  Widget showImage() {
-    return Container(
-      color: const Color(0xffd0cece),
       width: 100,
       height: 100,
     );
@@ -48,3 +30,4 @@ class _showImageState extends State<showImage> {
     );
   }
 }
+
