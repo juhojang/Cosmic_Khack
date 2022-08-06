@@ -51,7 +51,7 @@ image_editor : 각자의 flutter 주소\.pub-cache\hosted\pub.dartlang.org\image
 ### 파이어베이스 연동
 코드를 실행하기 위해서 **파이어베이스 연동**이 필요합니다.  
 https://www.youtube.com/watch?v=EXp0gq9kGxI  
-다음 동영상을 참고(8:50)하여 연동시켜주세요.  
+다음 동영상을 참고(8:50 까지)하여 연동시켜주세요.  
 
 ### app 수준 build.gradle 수정
 android>app>src>build.gradle에 들어가서 minSdkVersion을 21로 수정해주세요.  
