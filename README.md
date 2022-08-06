@@ -7,6 +7,8 @@
   gallery_saver: ^2.3.2
   intl: ^0.17.0
   advance_image_picker: ^0.1.7+1
+  image_editor_dove: ^0.0.2
+  
 ```
 를 추가하세요
 
@@ -31,4 +33,5 @@ image_picker_configs : 각자의 flutter 주소\.pub-cache\hosted\pub.dartlang.o
 camera_controller : 각자의 flutter 주소\.pub-cache\hosted\pub.dartlang.org\camera-0.9.8+1\lib\src
 scroll_controller : 각자의 flutter 주소\packages\flutter\lib\src\widgets
 sliding_segmented_control : 각자의 flutter 주소\packages\flutter\lib\src\cupertino
+image_editor : 각자의 flutter 주소\.pub-cache\hosted\pub.dartlang.org\image_editor_dove-0.0.2\lib
 ```
