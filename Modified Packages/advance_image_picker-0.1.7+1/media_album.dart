@@ -5,11 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:advance_image_picker/widgets/picker/image_picker.dart';
 
 import '../../models/image_object.dart';
 import '../../utils/image_utils.dart';
 import '../../utils/log_utils.dart';
 import 'package:untitled20/showImage.dart';
+import 'package:image_editor_dove/flutter_image_editor.dart';
 
 /// MediaAlbum or photo album widget.
 class MediaAlbum extends StatefulWidget {
@@ -172,7 +174,29 @@ class MediaAlbumState extends State<MediaAlbum> {
               }
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder:(context)=>showImage(file)));
+                  MaterialPageRoute(builder:(context)=>ImageEditor(originImage: file!,))).then((value) => setState(()async {
+                LogUtils.log("[_initPhotoGallery] start");
+
+                try {
+                  // Request permission for image selecting
+                  final result = await PhotoManager.requestPermissionExtend();
+                  if (result.isAuth) {
+                    LogUtils.log('PhotoGallery permission allowed');
+
+                    // Get albums then set first album as current album
+                    List<AssetPathEntity> albums_ = await PhotoManager.getAssetPathList(type: RequestType.image);
+                    if (albums_.isNotEmpty) {
+                      final isAllAlbum = albums_.firstWhere((element) => element.isAll,
+                          orElse: () => albums_.first);
+                          _album = isAllAlbum;
+                    }
+                  } else {
+                    LogUtils.log('PhotoGallery permission not allowed');
+                  }
+                } catch (e) {
+                  LogUtils.log('PhotoGallery error ${e.toString()}');
+                }
+              }));
               final image = ImageObject(
                   originalPath: file!.path,
                   modifiedPath: file.path,
