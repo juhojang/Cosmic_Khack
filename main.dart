@@ -81,7 +81,6 @@ class MyApp extends StatelessWidget {
       }
     };
 
-    // Example about custom stickers
     configs.customStickerOnly = true;
     configs.customStickers = [
       'assets/icon/cus1.png',
@@ -118,18 +117,32 @@ class _MyHomePageState extends State<MyHomePage> {
     return new Scaffold(
       key: _scaffoldKey,
       drawer: Drawer(
-        backgroundColor: Colors.white,
+        backgroundColor: widget.isSelected[0]?Colors.greenAccent.shade200:Colors.white,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             Padding(
               padding:EdgeInsets.fromLTRB(0, 29, 0, 0),
-              child: ListTile(
-                leading: Icon(
-                  Icons.menu,
-                  color: Colors.black,
+              child: Container(
+                child: ListTile(
+                  leading: Icon(
+                    Icons.menu,
+                    color: widget.isSelected[0]? Colors.white: Colors.black,
+                  ),
+                  title:Text('설 정',style: TextStyle(fontSize: 20),),
                 ),
-                title:Text('설정',style: TextStyle(fontSize: 18),),
+                decoration: BoxDecoration(
+                  color: Colors.greenAccent.shade100,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0,3)
+                    )
+                  ],
+                  borderRadius: BorderRadius.all(Radius.circular(50))
+                ),
               ),
             ),
             ListTile(
@@ -146,7 +159,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     isSwitched=value;
                   });
                 },
-                activeColor: Colors.green,
               ),
             ),
             ListTile(
@@ -161,113 +173,54 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      appBar: new AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          color: Colors.black,
-          onPressed: (){
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
-      ),
       body:
       Stack(
         children: [
-          widget.isSelected[0]?AnimatedOpacity(
-            child: Padding(
-              padding:EdgeInsets.fromLTRB(35, 100, 0, 0),
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(180),
-                    color: Colors.green.shade50,
-                    border: Border.all(color: Colors.green.shade50, width: 3)),
-                width: 340,
-                height: 340,
-              ),
-            ),
-            opacity: 1,
-            duration: Duration(seconds: 3),
-          ):AnimatedOpacity(
-            child: Padding(
-              padding:EdgeInsets.fromLTRB(35, 100, 0, 0),
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(180),
-                    color: Colors.green.shade50,
-                    border: Border.all(color: Colors.green.shade50, width: 3)),
-                width: 340,
-                height: 340,
-              ),
-            ),
-            opacity: 0,
-            duration: Duration(seconds: 1),
-          ),
-          widget.isSelected[0]?AnimatedOpacity(
-            child: Padding(
-              padding:EdgeInsets.fromLTRB(45, 110, 0, 0),
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(180),
-                    color: Colors.green.shade100,
-                    border: Border.all(color: Colors.green.shade100, width: 3)),
-                width: 320,
-                height: 320,
-              ),
-            ),
-            opacity: 1,
+          AnimatedContainer(
+            width: widget.isSelected[0]? 1000: 1000,
+            height: widget.isSelected[0]? 1000: 1000,
+            color: widget.isSelected[0]? Colors.greenAccent: Colors.white,
             duration: Duration(seconds: 2),
-          ):AnimatedOpacity(
-            child: Padding(
-              padding:EdgeInsets.fromLTRB(45, 110, 0, 0),
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(180),
-                    color: Colors.green.shade100,
-                    border: Border.all(color: Colors.green.shade100, width: 3)),
-                width: 320,
-                height: 320,
-              ),
-            ),
-            opacity: 0,
+            curve: Curves.fastLinearToSlowEaseIn,
+          ),
+          AnimatedContainer(
+            width: widget.isSelected[0]? 300: 300,
+            height: widget.isSelected[0]? 130: 130,
+            color: widget.isSelected[0]? Colors.greenAccent: Colors.white,
             duration: Duration(seconds: 2),
-          ),
-          widget.isSelected[0]?AnimatedOpacity(
-            child: Padding(
-              padding:EdgeInsets.fromLTRB(60, 125, 0, 0),
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(180),
-                    color: Colors.green.shade200,
-                    border: Border.all(color: Colors.green.shade200, width: 3)),
-                width: 290,
-                height: 290,
-              ),
+            curve: Curves.fastLinearToSlowEaseIn,
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10,0,0,0),
+                  child: IconButton(
+                    icon: Icon(Icons.menu),
+                    color: widget.isSelected[0]?Colors.white:Colors.black,
+                    onPressed: (){
+                      _scaffoldKey.currentState?.openDrawer();
+                    },
+                  ),
+                ),
+                Text("  B l u r   B l u r",style: TextStyle(fontStyle: FontStyle.normal,fontSize: 25,color:widget.isSelected[0]?Colors.white:Colors.black),)
+              ],
             ),
-            opacity: 1,
-            duration: Duration(seconds: 1),
-          ):AnimatedOpacity(
-            child: Padding(
-              padding:EdgeInsets.fromLTRB(60, 125, 0, 0),
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(180),
-                    color: Colors.green.shade200,
-                    border: Border.all(color: Colors.green.shade200, width: 3)),
-                width: 290,
-                height: 290,
-              ),
-            ),
-            opacity: 0,
-            duration: Duration(seconds: 3),
           ),
-          new Column(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 100, 0, 0),
+            child: AnimatedContainer(
+              width: widget.isSelected[0]? 390: 0,
+              height: widget.isSelected[0]? 2: 2,
+              color: widget.isSelected[0]? Colors.white: Colors.white,
+              duration: Duration(seconds: 2),
+              curve: Curves.fastLinearToSlowEaseIn,
+            ),
+          ),
+          Column(
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Padding(padding: EdgeInsets.fromLTRB(0, 150, 0, 0)),
+              Padding(padding: EdgeInsets.fromLTRB(0, 230, 0, 0)),
               ToggleButtons(constraints:BoxConstraints(minWidth: 230.0, minHeight: 230.0),
                   borderRadius: BorderRadius.circular(180),
                   borderWidth: 5,
@@ -277,11 +230,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   focusColor: Colors.green,
                   color: Colors.green,
                   selectedColor: Colors.green,
-                  selectedBorderColor: Colors.green,
+                  selectedBorderColor: Colors.white,
                   hoverColor: Colors.green,
                   children:[
-                Icon(Icons.lock,size: 130,
-                color: widget.isSelected[0]?Colors.green:Colors.black12)],
+                Icon(widget.isSelected[0]?Icons.shield:Icons.heart_broken,size: 130,
+                color: widget.isSelected[0]?Colors.white:Colors.black12)],
                   onPressed:(int index){setState(() {
                     widget.isSelected[index] = !widget.isSelected[index];
               });},
@@ -300,8 +253,8 @@ class _MyHomePageState extends State<MyHomePage> {
               widget.isSelected[0]?AnimatedOpacity(
                 child: new Text(
                   "감지가 활성 상태입니다.",
-                  style: new TextStyle(fontSize:20.0,
-                      color: const Color(0xFF000000),
+                  style: new TextStyle(fontSize:25.0,
+                      color: Colors.white,
                       fontWeight: FontWeight.w500,
                       fontFamily: "Roboto"),
                 ),
@@ -310,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ):AnimatedOpacity(
                 child: Text(
                   "감지가 비활성 상태입니다.",
-                  style: new TextStyle(fontSize:20.0,
+                  style: new TextStyle(fontSize:25.0,
                       color: const Color(0xFF000000),
                       fontWeight: FontWeight.w500,
                       fontFamily: "Roboto"),
@@ -323,7 +276,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: new Text(
                   "n 개의 사진에 개인정보가 감지되었습니다.",
                   style: new TextStyle(fontSize:20.0,
-                      color: const Color(0xFF000000),
+                      color: Colors.white,
                       fontWeight: FontWeight.w200,
                       fontFamily: "Roboto"),
                 ),
@@ -363,7 +316,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 },
                                 icon: Icon(
                                     Icons.enhance_photo_translate_outlined,
-                                    color: Colors.green,
+                                    color: Colors.white,
                                     size: 48.0),
                               ),
                         opacity: 1,
@@ -373,7 +326,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: (){},
                         icon: Icon(
                               Icons.enhance_photo_translate_outlined,
-                              color: Colors.green,
+                              color: Colors.white,
                               size: 48.0),
                       ),
                         opacity: 0.1,
@@ -396,7 +349,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           icon: Icon(
                               Icons.photo_outlined,
-                              color: Colors.green,
+                              color: Colors.white,
                               size: 48.0),
                         ),
                         duration: Duration(seconds: 1),
@@ -406,7 +359,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           onPressed: (){},
                           icon: Icon(
                               Icons.photo_outlined,
-                              color: Colors.green,
+                              color: Colors.white,
                               size: 48.0),
                         ),
                         opacity: 0.1,
