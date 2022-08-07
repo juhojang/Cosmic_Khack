@@ -95,13 +95,14 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primaryColor: Colors.white,
       ),
-      home: new MyHomePage(),
+      home: new MyHomePage(isSelected: [false]),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key ?key}) : super(key: key);
+  MyHomePage({Key ?key, required this.isSelected}) : super(key: key);
+  List<bool> isSelected = [false];
   @override
   _MyHomePageState createState() => new _MyHomePageState();
 }
@@ -109,21 +110,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<ImageObject> _imgObjs = [];
   File? _image;
-  //inal picker = ImagePicker();
-
-  // 비동기 처리를 통해 카메라와 갤러리에서 이미지를 가져온다.
-  /*Future getImage(ImageSource imageSource) async {
-    final image = await picker.pickImage(source: imageSource);
-
-    setState(() {
-      _image = File(image!.path); // 가져온 이미지를 _image에 저장
-    });
-    Navigator.push(context, MaterialPageRoute(builder: (context) => showImage(_image)),);
-  }*/
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   var isSwitched=false;
-  List<bool> isSelected = [false];
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -186,7 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body:
       Stack(
         children: [
-          isSelected[0]?AnimatedOpacity(
+          widget.isSelected[0]?AnimatedOpacity(
             child: Padding(
               padding:EdgeInsets.fromLTRB(35, 100, 0, 0),
               child: Container(
@@ -215,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
             opacity: 0,
             duration: Duration(seconds: 1),
           ),
-          isSelected[0]?AnimatedOpacity(
+          widget.isSelected[0]?AnimatedOpacity(
             child: Padding(
               padding:EdgeInsets.fromLTRB(45, 110, 0, 0),
               child: Container(
@@ -244,7 +233,7 @@ class _MyHomePageState extends State<MyHomePage> {
             opacity: 0,
             duration: Duration(seconds: 2),
           ),
-          isSelected[0]?AnimatedOpacity(
+          widget.isSelected[0]?AnimatedOpacity(
             child: Padding(
               padding:EdgeInsets.fromLTRB(60, 125, 0, 0),
               child: Container(
@@ -292,23 +281,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   hoverColor: Colors.green,
                   children:[
                 Icon(Icons.lock,size: 130,
-                color: isSelected[0]?Colors.green:Colors.black12)],
+                color: widget.isSelected[0]?Colors.green:Colors.black12)],
                   onPressed:(int index){setState(() {
-                isSelected[index] = !isSelected[index];
+                    widget.isSelected[index] = !widget.isSelected[index];
               });},
-                  isSelected: isSelected),
+                  isSelected: widget.isSelected),
               Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0)),
               Switch(
-                value: isSelected[0],
+                value: widget.isSelected[0],
                 onChanged: (value){
                   setState(() {
-                    isSelected[0]=value;
+                    widget.isSelected[0]=value;
                   });
                 },
                 activeColor: Colors.green,
               ),
               Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0)),
-              isSelected[0]?AnimatedOpacity(
+              widget.isSelected[0]?AnimatedOpacity(
                 child: new Text(
                   "감지가 활성 상태입니다.",
                   style: new TextStyle(fontSize:20.0,
@@ -330,7 +319,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 duration: Duration(seconds: 1),
               ),
               Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
-              isSelected[0]?AnimatedOpacity(
+              widget.isSelected[0]?AnimatedOpacity(
                 child: new Text(
                   "n 개의 사진에 개인정보가 감지되었습니다.",
                   style: new TextStyle(fontSize:20.0,
@@ -357,7 +346,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: new Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      isSelected[0]?AnimatedOpacity(
+                      widget.isSelected[0]?AnimatedOpacity(
                         child: IconButton(
                                 onPressed: ()async{
                                   // Get max 5 images
@@ -391,7 +380,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         duration: Duration(seconds:1),
                             ),
 
-                      isSelected[0]?AnimatedOpacity(
+                      widget.isSelected[0]?AnimatedOpacity(
                         child: IconButton(
                           onPressed: ()async{
                             final List<ImageObject>? objects = await Navigator.of(context)
