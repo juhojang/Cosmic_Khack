@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:untitled20/main.dart';
 
 import '../../configs/image_picker_configs.dart';
 import '../../models/image_object.dart';
@@ -30,7 +31,9 @@ class PickerMode {
   //   but fixing it is a breaking change, thus not changed yet.
   // ignore: constant_identifier_names
   static const int Album = 1;
+
 }
+
 
 /// Default height of bottom control panel.
 const int kBottomControlPanelHeight = 145;
@@ -67,6 +70,7 @@ class ImagePicker extends StatefulWidget {
   /// Default mode for selecting image: capture new image or select
   /// image from album.
   final bool isCaptureFirst;
+
 
   @override
   _ImagePickerState createState() => _ImagePickerState();
@@ -483,6 +487,14 @@ class _ImagePickerState extends State<ImagePicker>
           key: _scaffoldKey,
           backgroundColor: _configs.backgroundColor,
           appBar: AppBar(
+            leading: IconButton(
+              onPressed: (){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder:(context)=>MyHomePage(isSelected: [true],)));
+              },
+              icon: Icon(Icons.arrow_back),
+            ),
             title: _buildAppBarTitle(
               context,
               _appBarBackgroundColor,
@@ -562,7 +574,9 @@ class _ImagePickerState extends State<ImagePicker>
     }
     _isImageSelectedDone = true;
     if (!mounted) return;
-    Navigator.of(context).pop(_selectedImages);
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder:(context)=>MyHomePage(isSelected: [true],)));
   }
 
   // TODO(rydmike): The image picker uses a lot of Widget build functions.
