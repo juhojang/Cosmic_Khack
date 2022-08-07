@@ -95,13 +95,14 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primaryColor: Colors.white,
       ),
-      home: new MyHomePage(),
+      home: new MyHomePage(isSelected: [false]),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key ?key}) : super(key: key);
+  MyHomePage({Key ?key, required this.isSelected}) : super(key: key);
+  List<bool> isSelected = [false];
   @override
   _MyHomePageState createState() => new _MyHomePageState();
 }
@@ -109,21 +110,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<ImageObject> _imgObjs = [];
   File? _image;
-  //inal picker = ImagePicker();
-
-  // 비동기 처리를 통해 카메라와 갤러리에서 이미지를 가져온다.
-  /*Future getImage(ImageSource imageSource) async {
-    final image = await picker.pickImage(source: imageSource);
-
-    setState(() {
-      _image = File(image!.path); // 가져온 이미지를 _image에 저장
-    });
-    Navigator.push(context, MaterialPageRoute(builder: (context) => showImage(_image)),);
-  }*/
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   var isSwitched=false;
-  List<bool> isSelected = [false];
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -175,7 +164,6 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: new AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        title: new Text('Blur Blur',style: TextStyle(color:Colors.black,fontWeight: FontWeight.bold,fontSize: 25),),
         leading: IconButton(
           icon: Icon(Icons.menu),
           color: Colors.black,
@@ -185,108 +173,252 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body:
-      new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(padding: EdgeInsets.fromLTRB(0, 150, 0, 0)),
-            ToggleButtons(constraints:BoxConstraints(minWidth: 230.0, minHeight: 230.0),
-                borderRadius: BorderRadius.circular(180),
-                borderWidth: 5,
-                disabledColor: Colors.grey,
-                splashColor: Colors.green,
-                highlightColor: Colors.green,
-                focusColor: Colors.green,
-                color: Colors.green,
-                selectedColor: Colors.green,
-                selectedBorderColor: Colors.green,
-                hoverColor: Colors.green,
-                children:[
-              Icon(Icons.lock,size: 130,
-              color: isSelected[0]?Colors.green:Colors.black12)],
-                onPressed:(int index){setState(() {
-              isSelected[index] = !isSelected[index];
-            });},
-                isSelected: isSelected),
-            Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
-            Switch(
-
-              value: isSelected[0],
-              onChanged: (value){
-                setState(() {
-                  isSelected[0]=value;
-                });
-              },
-              activeColor: Colors.green,
+      Stack(
+        children: [
+          widget.isSelected[0]?AnimatedOpacity(
+            child: Padding(
+              padding:EdgeInsets.fromLTRB(35, 100, 0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(180),
+                    color: Colors.green.shade50,
+                    border: Border.all(color: Colors.green.shade50, width: 3)),
+                width: 340,
+                height: 340,
+              ),
             ),
-            Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0)),
-            new Text(
-              "n 개의 이미지에 개인정보가 감지되었습니다.",
-              style: new TextStyle(fontSize:20.0,
-                  color: const Color(0xFF000000),
-                  fontWeight: FontWeight.w200,
-                  fontFamily: "Roboto"),
+            opacity: 1,
+            duration: Duration(seconds: 3),
+          ):AnimatedOpacity(
+            child: Padding(
+              padding:EdgeInsets.fromLTRB(35, 100, 0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(180),
+                    color: Colors.green.shade50,
+                    border: Border.all(color: Colors.green.shade50, width: 3)),
+                width: 340,
+                height: 340,
+              ),
             ),
-            Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
-
-            new Text(
-              "n 개의 동영상에 개인정보가 감지되었습니다.",
-              style: new TextStyle(fontSize:20.0,
-                  color: const Color(0xFF000000),
-                  fontWeight: FontWeight.w200,
-                  fontFamily: "Roboto"),
+            opacity: 0,
+            duration: Duration(seconds: 1),
+          ),
+          widget.isSelected[0]?AnimatedOpacity(
+            child: Padding(
+              padding:EdgeInsets.fromLTRB(45, 110, 0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(180),
+                    color: Colors.green.shade100,
+                    border: Border.all(color: Colors.green.shade100, width: 3)),
+                width: 320,
+                height: 320,
+              ),
             ),
-            Padding(padding: EdgeInsets.fromLTRB(0, 120, 0, 0)),
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 20, 10, 0),
-              child: new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                          IconButton(
-                            onPressed: ()async{
-                              // Get max 5 images
-                              final List<ImageObject>? objects = await Navigator.of(context)
-                                  .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
-                                return const ImagePicker(mode:0,maxCount:10000);
-                              }));
+            opacity: 1,
+            duration: Duration(seconds: 2),
+          ):AnimatedOpacity(
+            child: Padding(
+              padding:EdgeInsets.fromLTRB(45, 110, 0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(180),
+                    color: Colors.green.shade100,
+                    border: Border.all(color: Colors.green.shade100, width: 3)),
+                width: 320,
+                height: 320,
+              ),
+            ),
+            opacity: 0,
+            duration: Duration(seconds: 2),
+          ),
+          widget.isSelected[0]?AnimatedOpacity(
+            child: Padding(
+              padding:EdgeInsets.fromLTRB(60, 125, 0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(180),
+                    color: Colors.green.shade200,
+                    border: Border.all(color: Colors.green.shade200, width: 3)),
+                width: 290,
+                height: 290,
+              ),
+            ),
+            opacity: 1,
+            duration: Duration(seconds: 1),
+          ):AnimatedOpacity(
+            child: Padding(
+              padding:EdgeInsets.fromLTRB(60, 125, 0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(180),
+                    color: Colors.green.shade200,
+                    border: Border.all(color: Colors.green.shade200, width: 3)),
+                width: 290,
+                height: 290,
+              ),
+            ),
+            opacity: 0,
+            duration: Duration(seconds: 3),
+          ),
+          new Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(padding: EdgeInsets.fromLTRB(0, 150, 0, 0)),
+              ToggleButtons(constraints:BoxConstraints(minWidth: 230.0, minHeight: 230.0),
+                  borderRadius: BorderRadius.circular(180),
+                  borderWidth: 5,
+                  disabledColor: Colors.grey,
+                  splashColor: Colors.green,
+                  highlightColor: Colors.green,
+                  focusColor: Colors.green,
+                  color: Colors.green,
+                  selectedColor: Colors.green,
+                  selectedBorderColor: Colors.green,
+                  hoverColor: Colors.green,
+                  children:[
+                Icon(Icons.lock,size: 130,
+                color: widget.isSelected[0]?Colors.green:Colors.black12)],
+                  onPressed:(int index){setState(() {
+                    widget.isSelected[index] = !widget.isSelected[index];
+              });},
+                  isSelected: widget.isSelected),
+              Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0)),
+              Switch(
+                value: widget.isSelected[0],
+                onChanged: (value){
+                  setState(() {
+                    widget.isSelected[0]=value;
+                  });
+                },
+                activeColor: Colors.green,
+              ),
+              Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0)),
+              widget.isSelected[0]?AnimatedOpacity(
+                child: new Text(
+                  "감지가 활성 상태입니다.",
+                  style: new TextStyle(fontSize:20.0,
+                      color: const Color(0xFF000000),
+                      fontWeight: FontWeight.w500,
+                      fontFamily: "Roboto"),
+                ),
+                opacity: 1,
+                duration: Duration(seconds:1),
+              ):AnimatedOpacity(
+                child: Text(
+                  "감지가 비활성 상태입니다.",
+                  style: new TextStyle(fontSize:20.0,
+                      color: const Color(0xFF000000),
+                      fontWeight: FontWeight.w500,
+                      fontFamily: "Roboto"),
+                ),
+                opacity: 0.3,
+                duration: Duration(seconds: 1),
+              ),
+              Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
+              widget.isSelected[0]?AnimatedOpacity(
+                child: new Text(
+                  "n 개의 사진에 개인정보가 감지되었습니다.",
+                  style: new TextStyle(fontSize:20.0,
+                      color: const Color(0xFF000000),
+                      fontWeight: FontWeight.w200,
+                      fontFamily: "Roboto"),
+                ),
+                opacity: 1,
+                duration: Duration(seconds: 1),
+              ):AnimatedOpacity(
+                child: Text(
+                  "활성화하여 개인정보를 보호하세요.",
+                  style: new TextStyle(fontSize:20.0,
+                      color: const Color(0xFF000000),
+                      fontWeight: FontWeight.w200,
+                      fontFamily: "Roboto"),
+                ),
+                opacity: 0.3,
+                duration: Duration(seconds: 1),
+              ),
+              Padding(padding: EdgeInsets.fromLTRB(0, 100, 0, 0)),
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 20, 10, 0),
+                child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      widget.isSelected[0]?AnimatedOpacity(
+                        child: IconButton(
+                                onPressed: ()async{
+                                  // Get max 5 images
+                                  final List<ImageObject>? objects = await Navigator.of(context)
+                                      .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
+                                    return const ImagePicker(mode:0,maxCount:10000);
+                                  }));
 
-                              if ((objects?.length ?? 0) > 0) {
-                                setState(() {
-                                  _imgObjs = objects!;
-                                });
-                              }
-                            },
-                            icon: Icon(
-                                Icons.enhance_photo_translate_outlined,
-                                color: const Color(0xFF000000),
-                                size: 48.0),
-                          ),
+                                  if ((objects?.length ?? 0) > 0) {
+                                    setState(() {
+                                      _imgObjs = objects!;
+                                    });
+                                  }
+                                },
+                                icon: Icon(
+                                    Icons.enhance_photo_translate_outlined,
+                                    color: Colors.green,
+                                    size: 48.0),
+                              ),
+                        opacity: 1,
+                        duration: Duration(seconds: 1),
+                      ):AnimatedOpacity(
+                              child: IconButton(
+                        onPressed: (){},
+                        icon: Icon(
+                              Icons.enhance_photo_translate_outlined,
+                              color: Colors.green,
+                              size: 48.0),
+                      ),
+                        opacity: 0.1,
+                        duration: Duration(seconds:1),
+                            ),
 
-                    IconButton(
-                      onPressed: ()async{
-                        // Get max 5 images
-                        final List<ImageObject>? objects = await Navigator.of(context)
-                            .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
-                          return const ImagePicker(mode:1,maxCount: 10000);
-                        }));
+                      widget.isSelected[0]?AnimatedOpacity(
+                        child: IconButton(
+                          onPressed: ()async{
+                            final List<ImageObject>? objects = await Navigator.of(context)
+                                .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
+                              return const ImagePicker(mode:1,maxCount: 10000);
+                            }));
 
-                        if ((objects?.length ?? 0) > 0) {
-                          setState(() {
-                            _imgObjs = objects!;
-                          });
-                        }
-                      },
-                      icon: Icon(
-                          Icons.photo_outlined,
-                          color: const Color(0xFF000000),
-                          size: 48.0),
-                    ),
-                        ]
+                            if ((objects?.length ?? 0) > 0) {
+                              setState(() {
+                                _imgObjs = objects!;
+                              });
+                            }
+                          },
+                          icon: Icon(
+                              Icons.photo_outlined,
+                              color: Colors.green,
+                              size: 48.0),
+                        ),
+                        duration: Duration(seconds: 1),
+                        opacity: 1,
+                      ):AnimatedOpacity(
+                        child: IconButton(
+                          onPressed: (){},
+                          icon: Icon(
+                              Icons.photo_outlined,
+                              color: Colors.green,
+                              size: 48.0),
+                        ),
+                        opacity: 0.1,
+                        duration: Duration(seconds: 1),
+                      ),
+                          ]
 
-                    ),
-            )
-          ]
+                      ),
+              )
+            ]
+        )
+        ],
       ),
 
     );
