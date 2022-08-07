@@ -76,15 +76,15 @@ class ImageEditorState extends State<ImageEditor>
   ///Save the edited-image to [widget.savePath] or [getTemporaryDirectory()].
   void SaveImage() {
     _panelController.takeShot.value = true;
-    screenshotController.capture(pixelRatio: 1.0).then((value) async {
+    screenshotController.capture(pixelRatio: 1).then((value) async {
       final paths = widget.savePath ?? await getTemporaryDirectory();
+      print(paths);
       final file = await File('${paths.path}/' + DateTime.now().toString() + '.jpg').create();
       file.writeAsBytes(value ?? []);
       decodeImg().then((value) {
         if (value == null) {
           Navigator.pop(context);
         } else {
-          print(file);
           GallerySaver.saveImage(file.path);
           Navigator.push(
               context,
@@ -275,8 +275,10 @@ class ImageEditorState extends State<ImageEditor>
       alignment: Alignment.center,
       transform: Matrix4.rotationY(flipValue),
       child: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
         alignment: Alignment.center,
-        child: Image.file(widget.originImage),
+        child: Image.file(widget.originImage,fit: BoxFit.fitWidth,height: double.infinity,width: double.infinity,),
       ),
     );
   }
