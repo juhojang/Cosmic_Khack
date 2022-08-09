@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:advance_image_picker/widgets/picker/image_picker.dart';
+import 'package:blurrycontainer/blurrycontainer.dart';
 
 import 'dart:ui' as ui;
 
@@ -35,6 +36,7 @@ class EditorImageResult {
   EditorImageResult(this.imgWidth, this.imgHeight, this.newFile);
 }
 
+
 class ImageEditor extends StatefulWidget {
 
   const ImageEditor({Key? key, required this.originImage, this.savePath}) : super(key: key);
@@ -63,7 +65,7 @@ class ImageEditorState extends State<ImageEditor>
 
   double get headerHeight => windowStatusBarHeight;
 
-  double get bottomBarHeight => 105 + windowBottomBarHeight;
+  double get bottomBarHeight => 85 + windowBottomBarHeight;
 
   ///Edit area height.
   double get canvasHeight => screenHeight - bottomBarHeight - headerHeight;
@@ -104,6 +106,7 @@ class ImageEditorState extends State<ImageEditor>
   static ImageEditorState? of(BuildContext context) {
     return context.findAncestorStateOfType<ImageEditorState>();
   }
+  
 
   @override
   void initState() {
@@ -115,7 +118,7 @@ class ImageEditorState extends State<ImageEditor>
   Widget build(BuildContext context) {
     _panelController.screenSize ??= windowSize;
     return Material(
-      color: Colors.black,
+      color: Colors.white,
       child: Listener(
         onPointerMove: (v) {
           _panelController.pointerMoving(v);
@@ -137,11 +140,12 @@ class ImageEditorState extends State<ImageEditor>
                               return Opacity(
                                 opacity: value ? 0 : 1,
                                 child: AppBar(
+                                  elevation: 0,
                                   iconTheme: IconThemeData(color: Colors.white, size: 16),
                                   leading: backWidget(),
                                   backgroundColor: Colors.transparent,
                                   actions: [
-                                    resetWidget(onTap: resetCanvasPlate)
+                                    doneButtonWidget(onPressed: SaveImage),
                                   ],
                                 ),
                               );
@@ -207,7 +211,7 @@ class ImageEditorState extends State<ImageEditor>
 
   Widget _buildControlBar() {
     return Container(
-      color: Colors.black,
+      color: Colors.transparent,
       width: screenWidth,
       height: bottomBarHeight,
       padding: EdgeInsets.only(left: 16, right: 16, bottom: windowBottomBarHeight),
@@ -247,21 +251,21 @@ class ImageEditorState extends State<ImageEditor>
           Expanded(
             child: Row(
               children: [
-                _buildButton(OperateType.brush, 'Draw', onPressed: () {
-                  switchPainterMode(DrawStyle.normal);
+                _buildButton(OperateType.mosaic, '수동 모자이크', onPressed: () {
+                  if(painterController.drawStyle!=DrawStyle.mosaic)
+                  {
+                    setState(() {
+                      print("hi");
+                      switchPainterMode(DrawStyle.mosaic);
+                    });
+                  }
+                  else{
+                    setState(() {
+                      print("hi2");
+                      switchPainterMode(DrawStyle.non);
+                    });
+                  }
                 }),
-                controlBtnSpacing,
-                _buildButton(OperateType.text, 'Text', onPressed: toTextEditorPage),
-                controlBtnSpacing,
-                _buildButton(OperateType.flip, 'Flip', onPressed: flipCanvas),
-                controlBtnSpacing,
-                _buildButton(OperateType.rotated, 'Rotate', onPressed: rotateCanvasPlate),
-                controlBtnSpacing,
-                _buildButton(OperateType.mosaic, 'Mosaic', onPressed: () {
-                  switchPainterMode(DrawStyle.mosaic);
-                }),
-                Expanded(child: SizedBox()),
-                doneButtonWidget(onPressed: SaveImage),
               ],
             ),
           )
@@ -318,17 +322,17 @@ class ImageEditorState extends State<ImageEditor>
         valueListenable: _panelController.operateType,
         builder: (ctx, value, child) {
           return SizedBox(
-            width: 44,
+            width: 71,
             height: 41,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                getOperateTypeRes(type, choosen: _panelController.isCurrentOperateType(type)),
+                getOperateTypeRes(type, choosen: painterController.drawStyle==DrawStyle.mosaic),
                 Text(
                   txt,
                   style: TextStyle(
-                      color: _panelController.isCurrentOperateType(type)
-                          ? const Color(0xFFFA4D32) : const Color(0xFF999999), fontSize: 11),
+                      color: painterController.drawStyle==DrawStyle.mosaic
+                          ? Colors.greenAccent : Colors.grey, fontSize: 11),
                 )
               ],
             ),
