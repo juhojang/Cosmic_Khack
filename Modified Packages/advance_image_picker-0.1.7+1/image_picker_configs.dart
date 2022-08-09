@@ -1,6 +1,6 @@
 import 'dart:core';
-
 import 'package:camera/camera.dart';
+
 import 'package:flutter/material.dart';
 
 import '../models/image_object.dart';
@@ -242,7 +242,7 @@ class ImagePickerConfigs {
   /// Background color of the camera and image picker.
   ///
   /// Defaults to [Colors.black].
-  Color backgroundColor = Colors.black;
+  Color backgroundColor = Colors.white;
 
   /// Background color of the bottom section of the camera.
   ///
@@ -265,7 +265,7 @@ class ImagePickerConfigs {
   ///
   /// Defaults to null.
   /// This results in an AppBar text color that follows current theme.
-  Color? appBarTextColor=Colors.transparent;
+  Color? appBarTextColor=Colors.greenAccent;
 
   /// The background color of the image selection completed button.
   ///
