@@ -8,6 +8,7 @@
   intl: ^0.17.0
   advance_image_picker: ^0.1.7+1
   image_editor_dove: ^0.0.2
+  blurrycontainer: ^1.0.2
   
 ```
 를 추가하세요
