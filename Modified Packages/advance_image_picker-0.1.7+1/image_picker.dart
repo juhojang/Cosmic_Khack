@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:untitled20/main.dart';
-
+import 'package:camera/camera.dart';
 import '../../configs/image_picker_configs.dart';
 import '../../models/image_object.dart';
 import '../../utils/image_utils.dart';
@@ -19,6 +18,7 @@ import '../viewer/image_viewer.dart';
 import 'media_album.dart';
 
 /// Picker mode definition: Camera or Album (Photo gallery of device)
+
 class PickerMode {
   /// Camera picker.
   // TODO(rydmike): This const property name does not conform to Dart standards,
@@ -468,7 +468,7 @@ class _ImagePickerState extends State<ImagePicker>
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppBarTheme appBarTheme = AppBarTheme.of(context);
-    final Color _appBarBackgroundColor = _configs.appBarBackgroundColor ??
+    final Color _appBarBackgroundColor = Colors.white;
         appBarTheme.backgroundColor ??
         (colorScheme.brightness == Brightness.dark
             ? colorScheme.surface
@@ -493,7 +493,7 @@ class _ImagePickerState extends State<ImagePicker>
                     context,
                     MaterialPageRoute(builder:(context)=>MyHomePage(isSelected: [true],)));
               },
-              icon: Icon(Icons.arrow_back),
+              icon: Icon(Icons.arrow_back,color:Colors.greenAccent,),
             ),
             title: _buildAppBarTitle(
               context,
@@ -530,7 +530,7 @@ class _ImagePickerState extends State<ImagePicker>
                                   foregroundColor: appBarTextColor,
                                   centerTitle: false),
                               body: Material(
-                                  color: Colors.black,
+                                  color: Colors.white,
                                   child: SafeArea(
                                     child: _buildAlbumList(_albums, context,
                                         (val) {
@@ -700,8 +700,7 @@ class _ImagePickerState extends State<ImagePicker>
     final size = MediaQuery.of(context).size;
     final container = Container(
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.black.withOpacity(0.1)),
+            borderRadius: BorderRadius.circular(10),),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -711,7 +710,7 @@ class _ImagePickerState extends State<ImagePicker>
               child: Text(_currentAlbum?.name ?? "",
                   overflow: TextOverflow.ellipsis,
                   style:
-                      TextStyle(color: _configs.appBarTextColor, fontSize: 16)),
+                      TextStyle(color: Colors.greenAccent, fontSize: 16)),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 4),
@@ -719,7 +718,7 @@ class _ImagePickerState extends State<ImagePicker>
                   isPop
                       ? Icons.arrow_upward_outlined
                       : Icons.arrow_downward_outlined,
-                  size: 16),
+                  size: 16,color: Colors.greenAccent,),
             )
           ],
         ));
@@ -941,7 +940,7 @@ class _ImagePickerState extends State<ImagePicker>
                           height: 80,
                           child: Image.memory(thumbnail, fit: BoxFit.cover)),
                       title: Text(album.name,
-                          style: const TextStyle(color: Colors.white)),
+                          style: const TextStyle(color: Colors.black)),
                       subtitle: Text(album.assetCount.toString(),
                           style: const TextStyle(color: Colors.grey)),
                       onTap: () async {
@@ -1017,7 +1016,7 @@ class _ImagePickerState extends State<ImagePicker>
               child: Container(
                 margin: const EdgeInsets.all(2),
                 decoration: const BoxDecoration(
-                  color: Colors.grey,
+                  color: Colors.greenAccent,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
@@ -1026,7 +1025,7 @@ class _ImagePickerState extends State<ImagePicker>
                 child: const Icon(
                   Icons.close,
                   size: 16,
-                  color: Colors.white,
+                  color: Colors.greenAccent,
                 ),
               ),
               onTap: () {
@@ -1216,7 +1215,7 @@ class _ImagePickerState extends State<ImagePicker>
                         : null,
                     child: Icon(Icons.adjust_rounded,
                         size: (100 + (_isCapturing ? (0) : 0)).toDouble(),
-                        color: _isCapturing ? Colors.greenAccent : Colors.green),
+                        color: _isCapturing ? Colors.green : Colors.greenAccent),
                   ),
                   GestureDetector(
                     onTap: canSwitchCamera && _configs.showLensDirection
@@ -1259,14 +1258,14 @@ class _ImagePickerState extends State<ImagePicker>
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: (_mode == PickerMode.Camera)
-                        ? Colors.green
+                        ? Colors.greenAccent
                         : Colors.grey)),
             1: Text(_configs.textAlbumTitle,
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: (_mode == PickerMode.Album)
-                        ? Colors.green
+                        ? Colors.greenAccent
                         : Colors.grey)),
           },
           groupValue: _mode,
@@ -1325,7 +1324,7 @@ class _ImagePickerState extends State<ImagePicker>
                     divisions: 16,
                     label: _currentExposureOffset.toString(),
                     activeColor: Colors.white,
-                    inactiveColor: Colors.grey,
+                    inactiveColor: Colors.white,
                     onChanged: _minAvailableExposureOffset ==
                             _maxAvailableExposureOffset
                         ? null
