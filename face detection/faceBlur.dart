@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:blurrycontainer/blurrycontainer.dart';
 
 void main() {
   runApp(const MyApp());
@@ -47,11 +48,24 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isWorking=false;
 
 
-
   XFile? imageFile;
 
   String scannedText="";
 
+  Widget blurFace(int i){
+    print(bluredface[i].boundingBox);
+    return Positioned(
+        top: bluredface[i].boundingBox.topRight.dy/2.6,
+        left: bluredface[i].boundingBox.topLeft.dx/2.6,
+        child: BlurryContainer(
+          width: bluredface[i].boundingBox.width/2.6,
+          height: bluredface[i].boundingBox.height/2.6,
+          child: Container(),
+          color: Colors.white.withOpacity(0.10),
+          blur: 5,
+          ),
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                     child: Image.file(io.File(imageFile!.path),fit:BoxFit.fill,)),
-
+                  for (int i =0;i<bluredface.length;i++) blurFace(i),
               Container(
                 width: 1000,
                 height: 1000,
@@ -230,24 +244,14 @@ class BackgroundPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var background = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth=5
-      ..color = Colors.red
-      ..isAntiAlias=true;
-    var background2 = Paint()
-      ..style = PaintingStyle.fill
-      ..strokeWidth=5
-      ..color = Colors.red
+      ..strokeWidth=3
+      ..color = Colors.greenAccent
       ..isAntiAlias=true;
 for (int i =0;i<recognisedface.length;i++) {
   canvas.drawRect(
       recognisedface[i].boundingBox.topLeft / 2.6 & recognisedface[i]
           .boundingBox.size / 2.6, background);
 }
-    for (int i =0;i<bluredface.length;i++) {
-      canvas.drawRect(
-          bluredface[i].boundingBox.topLeft / 2.6 & bluredface[i]
-              .boundingBox.size / 2.6, background2);
-    }
   }
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
