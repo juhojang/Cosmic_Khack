@@ -12,6 +12,8 @@ import 'dart:ui' as ui;
 import 'extension/num_extension.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:blurrycontainer/blurrycontainer.dart';
 
 import 'model/float_text_model.dart';
 import 'widget/drawing_board.dart';
@@ -21,6 +23,37 @@ import 'widget/image_editor_delegate.dart';
 import 'widget/text_editor_page.dart';
 
 
+int faceNumber=0;
+List<Face> recognisedface=[];
+List<Face> bluredface=[];
+List<TextBlock> blocks=[];
+bool eraseAccept=false;
+bool textScanning=false;
+bool isWorking=false;
+
+
+
+
+
+
+
+class BackgroundPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var background = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth=3
+      ..color = Colors.greenAccent
+      ..isAntiAlias=true;
+    for (int i =0;i<recognisedface.length;i++) {
+      canvas.drawRect(
+          recognisedface[i].boundingBox.topLeft/1.75+Offset(0,65) & recognisedface[i]
+              .boundingBox.size/1.7, background);
+    }
+  }
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
 
 ///The editor's result.
 class EditorImageResult {
@@ -73,7 +106,32 @@ class ImageEditorState extends State<ImageEditor>
   ///Operation panel button's horizontal space.
   Widget get controlBtnSpacing => 5.hGap;
 
+  void getRecognisedFace(File image) async{
+    final inputImage=InputImage.fromFilePath(image.path);
+    final FaceDetector=GoogleMlKit.vision.faceDetector();
+    recognisedface=await FaceDetector.processImage(inputImage);
+    faceNumber=recognisedface.length;
+    await FaceDetector.close();
 
+    textScanning=false;
+    setState(() {
+
+    });
+  }
+
+  Widget blurFace(int i){
+    return Positioned(
+      top: bluredface[i].boundingBox.topRight.dy/1.75+65,
+      left: bluredface[i].boundingBox.topLeft.dx/1.75,
+      child: BlurryContainer(
+        width: bluredface[i].boundingBox.width/1.7,
+        height: bluredface[i].boundingBox.height/1.7,
+        child: Container(),
+        color: Colors.white.withOpacity(0.10),
+        blur: 5,
+      ),
+    );
+  }
 
   ///Save the edited-image to [widget.savePath] or [getTemporaryDirectory()].
   void SaveImage() {
@@ -112,10 +170,16 @@ class ImageEditorState extends State<ImageEditor>
   void initState() {
     super.initState();
     initPainter();
+    _panelController.switchOperateType(OperateType.brush);
+    getRecognisedFace(widget.originImage);
+    bluredface=[];
   }
+
 
   @override
   Widget build(BuildContext context) {
+
+    print(recognisedface);
     _panelController.screenSize ??= windowSize;
     return Material(
       color: Colors.white,
@@ -127,7 +191,125 @@ class ImageEditorState extends State<ImageEditor>
           controller: screenshotController,
           child: Stack(
             children: [
-              //appBar
+              Positioned.fromRect(
+                  rect: Rect.fromLTWH(0, headerHeight, screenWidth, canvasHeight),
+                  child: RotatedBox(
+                    quarterTurns: rotateValue,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        _buildImage(),
+                      ],
+                    ),
+                  )),
+              //bottom operation(control) bar
+
+              //trash bin
+              //text canvas
+              for (int i =0;i<bluredface.length;i++) blurFace(i),
+              Container(
+                width: 1000,
+                height: 1000,
+                color: Colors.transparent,
+                child: Listener(
+                  onPointerMove: (event2){
+                    print("working");
+                    Face? targetFace;
+                    for (int i =0;i<faceNumber;i++) {
+                      if(i<recognisedface.length)
+                      {
+                        if(event2.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
+                        {
+                          if(event2.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                          {
+                            targetFace=recognisedface[i];
+                            break;
+                          }
+                        }
+                      }
+                      else{
+                        if(event2.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
+                        {
+                          if(event2.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
+                          {
+                            targetFace=bluredface[i-recognisedface.length];
+                            break;
+                          }
+                        }
+
+                      }
+                    }
+                    if(targetFace!=null){
+                      if(event2.localPosition.dx>(targetFace.boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(targetFace.boundingBox.bottomRight.dx/1.75))
+                        if(event2.localPosition.dy>(targetFace.boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy<(targetFace.boundingBox.topLeft.dy/1.75+65))
+                        {
+                          eraseAccept=false;
+                        }
+                        else{
+                          eraseAccept=true;
+                        }
+
+                      if(eraseAccept)
+                      {
+                        eraseAccept=false;
+                        faceNumber=faceNumber-1;
+                        setState(() {
+                          recognisedface.remove(targetFace);
+                          bluredface.remove(targetFace);
+                          print("remove");
+                        });
+
+                      }
+                    }
+                  },
+                  onPointerDown: (event){
+                    for (int i =0;i<faceNumber;i++) {
+                      if(i<recognisedface.length)
+                      {
+                        if(event.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
+                        {
+                          if(event.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                          {
+                            setState(() {
+                              bluredface.add(recognisedface[i]);
+                              recognisedface.remove(recognisedface[i]);
+                            });
+                            break;
+                          }
+                        }
+                      }
+                      else{
+                        if(event.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
+                        {
+                          if(event.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
+                          {
+                            setState(() {
+                              recognisedface.add(bluredface[i-recognisedface.length]);
+                              bluredface.remove(bluredface[i-recognisedface.length+1]);
+                            });
+                            break;
+                          }
+                        }
+
+                      }
+                    }
+                  },
+
+                  child: Stack(children:[
+                    Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              _buildBrushCanvas(),
+                              //buildTextCanvas(),
+                            ],
+                          ),
+                    CustomPaint(
+                    painter:BackgroundPainter(),
+                  ),
+                  ]
+                ),
+                )
+              ),
               ValueListenableBuilder<bool>(
                   valueListenable: _panelController.showAppBar,
                   builder: (ctx, value, child) {
@@ -152,21 +334,6 @@ class ImageEditorState extends State<ImageEditor>
                             }),
                         duration: _panelController.panelDuration);
                   }),
-              //canvas
-              Positioned.fromRect(
-                  rect: Rect.fromLTWH(0, headerHeight, screenWidth, canvasHeight),
-                  child: RotatedBox(
-                    quarterTurns: rotateValue,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        _buildImage(),
-                        _buildBrushCanvas(),
-                        //buildTextCanvas(),
-                      ],
-                    ),
-                  )),
-              //bottom operation(control) bar
               ValueListenableBuilder<bool>(
                   valueListenable: _panelController.showBottomBar,
                   builder: (ctx, value, child) {
@@ -185,23 +352,6 @@ class ImageEditorState extends State<ImageEditor>
                         ),
                         duration: _panelController.panelDuration);
                   }),
-              //trash bin
-              ValueListenableBuilder<bool>(
-                  valueListenable: _panelController.showTrashCan,
-                  builder: (ctx, value, child) {
-                    return AnimatedPositioned(
-                        bottom: value ? _panelController.trashCanPosition.dy : -headerHeight,
-                        left: _panelController.trashCanPosition.dx,
-                        child: _buildTrashCan(),
-                        duration: _panelController.panelDuration);
-                  }),
-              //text canvas
-              Positioned.fromRect(
-                  rect: Rect.fromLTWH(0, headerHeight, screenWidth, screenHeight),
-                  child: RotatedBox(
-                    quarterTurns: rotateValue,
-                    child: buildTextCanvas(),
-                  )),
             ],
           ),
         ),
@@ -224,24 +374,14 @@ class ImageEditorState extends State<ImageEditor>
                 return Opacity(
                   opacity: _panelController.show2ndPanel() ? 1 : 0,
                   child: Row(
-                    mainAxisAlignment: value == OperateType.brush ?
-                        MainAxisAlignment.spaceAround : MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if(value == OperateType.brush)
-                        ..._panelController.brushColor
-                            .map<Widget>((e) => CircleColorWidget(
-                          color: e,
-                          valueListenable: _panelController.colorSelected,
-                          onColorSelected: (color) {
-                            if(pColor.value == color.value) return;
-                            changePainterColor(color);
-                          },
-                        ))
-                            .toList(),
-                      35.hGap,
-                      unDoWidget(onPressed: undo),
-                      if(value == OperateType.mosaic)
-                        7.hGap,
+                      Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          child:
+                          IconButton(onPressed:undo,
+                            icon: Icon(Icons.arrow_back_ios)))
+
                     ],
                   ),
                 );
@@ -561,7 +701,7 @@ mixin SignatureBinding<T extends StatefulWidget> on State<T> {
   double pStrockWidth = 5;
 
   ///painter color
-  Color pColor = Colors.redAccent;
+  Color pColor = Colors.transparent;
 
   ///painter controller
   late SignatureController painterController;
