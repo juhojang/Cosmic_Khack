@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:untitled20/main.dart';
-import 'package:camera/camera.dart';
+
 import '../../configs/image_picker_configs.dart';
 import '../../models/image_object.dart';
 import '../../utils/image_utils.dart';
@@ -18,7 +19,6 @@ import '../viewer/image_viewer.dart';
 import 'media_album.dart';
 
 /// Picker mode definition: Camera or Album (Photo gallery of device)
-
 class PickerMode {
   /// Camera picker.
   // TODO(rydmike): This const property name does not conform to Dart standards,
@@ -609,7 +609,7 @@ class _ImagePickerState extends State<ImagePicker>
             : _builGalleryRequestPermissionView(context),
       if (_mode == PickerMode.Camera) ...[
         Positioned(
-            bottom: bottomHeight.toDouble(),
+            bottom: 170,
             left: 5,
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -617,7 +617,7 @@ class _ImagePickerState extends State<ImagePicker>
               _buildExposureButton(context),
             ])),
         Positioned(
-            bottom: bottomHeight.toDouble(),
+            bottom: 170,
             left: 0,
             right: 0,
             child: Center(child: _buildZoomRatioButton(context))),
@@ -657,7 +657,7 @@ class _ImagePickerState extends State<ImagePicker>
         shape: const CircleBorder(),
       ),
       onPressed: _controller != null ? _onExposureModeButtonPressed : null,
-      child: const Icon(Icons.exposure, color: Colors.white, size: 40),
+      child: const Icon(Icons.exposure_outlined, color: Colors.white, size: 40),
     );
   }
 
@@ -1075,12 +1075,12 @@ class _ImagePickerState extends State<ImagePicker>
   IconData _flashModeIcon(final FlashMode flashMode) {
     switch (flashMode) {
       case FlashMode.auto:
-        return Icons.flash_auto;
+        return Icons.flash_auto_outlined;
       case FlashMode.off:
-        return Icons.flash_off;
+        return Icons.flash_off_outlined;
       case FlashMode.torch:
       case FlashMode.always:
-        return Icons.flash_on;
+        return Icons.flash_on_outlined;
     }
   }
 
@@ -1114,7 +1114,7 @@ class _ImagePickerState extends State<ImagePicker>
 
     return _mode == PickerMode.Camera
         ? Container(
-            height: 90,
+            height: 135,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1235,7 +1235,7 @@ class _ImagePickerState extends State<ImagePicker>
                             }
                           }
                         : null,
-                    child: Icon(Icons.switch_camera,
+                    child: Icon(Icons.switch_camera_outlined,
                         size: 32,
                         color: _configs.showLensDirection
                             ? (canSwitchCamera ? Colors.white : Colors.grey)
