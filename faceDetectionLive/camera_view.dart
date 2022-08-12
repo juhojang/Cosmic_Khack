@@ -11,7 +11,6 @@ import 'package:image_picker/image_picker.dart';
 
 
 import 'package:image_picker/image_picker.dart';
-import 'package:untitled33/main.dart';import 'package:untitled33/screen_mode.dart';
 
 class Cameraview extends StatefulWidget {
   final String title;

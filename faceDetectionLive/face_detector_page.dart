@@ -1,8 +1,7 @@
 import 'package:camera/camera.dart';
 import'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:untitled33/camera_view.dart';
-import 'package:untitled33/face_detector_painter.dart';
+
 
 class FaceDetectorPage extends StatefulWidget {
   const FaceDetectorPage({Key? key}) : super(key: key);

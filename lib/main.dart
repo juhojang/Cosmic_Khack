@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-import 'package:untitled20/showImage.dart';
 import 'package:intl/intl.dart';
 import 'package:advance_image_picker/advance_image_picker.dart';
 
@@ -115,6 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      resizeToAvoidBottomInset: false,
       key: _scaffoldKey,
       drawer: Drawer(
         backgroundColor: widget.isSelected[0]?Colors.greenAccent.shade200:Colors.white,
@@ -174,204 +174,206 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body:
-      Stack(
-        children: [
-          AnimatedContainer(
-            width: widget.isSelected[0]? 1000: 1000,
-            height: widget.isSelected[0]? 1000: 1000,
-            color: widget.isSelected[0]? Colors.greenAccent: Colors.white,
-            duration: Duration(seconds: 2),
-            curve: Curves.fastLinearToSlowEaseIn,
-          ),
-          AnimatedContainer(
-            width: widget.isSelected[0]? 300: 300,
-            height: widget.isSelected[0]? 130: 130,
-            color: widget.isSelected[0]? Colors.greenAccent: Colors.white,
-            duration: Duration(seconds: 2),
-            curve: Curves.fastLinearToSlowEaseIn,
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10,0,0,0),
-                  child: IconButton(
-                    icon: Icon(Icons.menu),
-                    color: widget.isSelected[0]?Colors.white:Colors.black,
-                    onPressed: (){
-                      _scaffoldKey.currentState?.openDrawer();
-                    },
-                  ),
-                ),
-                Text("  B l u r   B l u r",style: TextStyle(fontStyle: FontStyle.normal,fontSize: 25,color:widget.isSelected[0]?Colors.white:Colors.black),)
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 100, 0, 0),
-            child: AnimatedContainer(
-              width: widget.isSelected[0]? 390: 0,
-              height: widget.isSelected[0]? 2: 2,
-              color: widget.isSelected[0]? Colors.white: Colors.white,
+      SingleChildScrollView(
+        child: Stack(
+          children: [
+            AnimatedContainer(
+              width: widget.isSelected[0]? 1000: 1000,
+              height: widget.isSelected[0]? 1000: 1000,
+              color: widget.isSelected[0]? Colors.greenAccent: Colors.white,
               duration: Duration(seconds: 2),
               curve: Curves.fastLinearToSlowEaseIn,
             ),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(padding: EdgeInsets.fromLTRB(0, 230, 0, 0)),
-              ToggleButtons(constraints:BoxConstraints(minWidth: 230.0, minHeight: 230.0),
-                  borderRadius: BorderRadius.circular(180),
-                  borderWidth: 5,
-                  disabledColor: Colors.grey,
-                  splashColor: Colors.green,
-                  highlightColor: Colors.green,
-                  focusColor: Colors.green,
-                  color: Colors.green,
-                  selectedColor: Colors.green,
-                  selectedBorderColor: Colors.white,
-                  hoverColor: Colors.green,
-                  children:[
-                Icon(widget.isSelected[0]?Icons.shield:Icons.heart_broken,size: 130,
-                color: widget.isSelected[0]?Colors.white:Colors.black12)],
-                  onPressed:(int index){setState(() {
-                    widget.isSelected[index] = !widget.isSelected[index];
-              });},
-                  isSelected: widget.isSelected),
-              Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0)),
-              Switch(
-                value: widget.isSelected[0],
-                onChanged: (value){
-                  setState(() {
-                    widget.isSelected[0]=value;
-                  });
-                },
-                activeColor: Colors.green,
+            AnimatedContainer(
+              width: widget.isSelected[0]? 300: 300,
+              height: widget.isSelected[0]? 130: 130,
+              color: widget.isSelected[0]? Colors.greenAccent: Colors.white,
+              duration: Duration(seconds: 2),
+              curve: Curves.fastLinearToSlowEaseIn,
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10,0,0,0),
+                    child: IconButton(
+                      icon: Icon(Icons.menu),
+                      color: widget.isSelected[0]?Colors.white:Colors.black,
+                      onPressed: (){
+                        _scaffoldKey.currentState?.openDrawer();
+                      },
+                    ),
+                  ),
+                  Text("  B l u r   B l u r",style: TextStyle(fontStyle: FontStyle.normal,fontSize: 25,color:widget.isSelected[0]?Colors.white:Colors.black),)
+                ],
               ),
-              Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0)),
-              widget.isSelected[0]?AnimatedOpacity(
-                child: new Text(
-                  "감지가 활성 상태입니다.",
-                  style: new TextStyle(fontSize:25.0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: "Roboto"),
-                ),
-                opacity: 1,
-                duration: Duration(seconds:1),
-              ):AnimatedOpacity(
-                child: Text(
-                  "감지가 비활성 상태입니다.",
-                  style: new TextStyle(fontSize:25.0,
-                      color: const Color(0xFF000000),
-                      fontWeight: FontWeight.w500,
-                      fontFamily: "Roboto"),
-                ),
-                opacity: 0.3,
-                duration: Duration(seconds: 1),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 100, 0, 0),
+              child: AnimatedContainer(
+                width: widget.isSelected[0]? 390: 0,
+                height: widget.isSelected[0]? 2: 2,
+                color: widget.isSelected[0]? Colors.white: Colors.white,
+                duration: Duration(seconds: 2),
+                curve: Curves.fastLinearToSlowEaseIn,
               ),
-              Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
-              widget.isSelected[0]?AnimatedOpacity(
-                child: new Text(
-                  "n 개의 사진에 개인정보가 감지되었습니다.",
-                  style: new TextStyle(fontSize:20.0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w200,
-                      fontFamily: "Roboto"),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(padding: EdgeInsets.fromLTRB(0, 230, 0, 0)),
+                ToggleButtons(constraints:BoxConstraints(minWidth: 230.0, minHeight: 230.0),
+                    borderRadius: BorderRadius.circular(180),
+                    borderWidth: 5,
+                    disabledColor: Colors.grey,
+                    splashColor: Colors.green,
+                    highlightColor: Colors.green,
+                    focusColor: Colors.green,
+                    color: Colors.green,
+                    selectedColor: Colors.green,
+                    selectedBorderColor: Colors.white,
+                    hoverColor: Colors.green,
+                    children:[
+                  Icon(widget.isSelected[0]?Icons.shield:Icons.heart_broken,size: 130,
+                  color: widget.isSelected[0]?Colors.white:Colors.black12)],
+                    onPressed:(int index){setState(() {
+                      widget.isSelected[index] = !widget.isSelected[index];
+                });},
+                    isSelected: widget.isSelected),
+                Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0)),
+                Switch(
+                  value: widget.isSelected[0],
+                  onChanged: (value){
+                    setState(() {
+                      widget.isSelected[0]=value;
+                    });
+                  },
+                  activeColor: Colors.green,
                 ),
-                opacity: 1,
-                duration: Duration(seconds: 1),
-              ):AnimatedOpacity(
-                child: Text(
-                  "활성화하여 개인정보를 보호하세요.",
-                  style: new TextStyle(fontSize:20.0,
-                      color: const Color(0xFF000000),
-                      fontWeight: FontWeight.w200,
-                      fontFamily: "Roboto"),
+                Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0)),
+                widget.isSelected[0]?AnimatedOpacity(
+                  child: new Text(
+                    "감지가 활성 상태입니다.",
+                    style: new TextStyle(fontSize:25.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Roboto"),
+                  ),
+                  opacity: 1,
+                  duration: Duration(seconds:1),
+                ):AnimatedOpacity(
+                  child: Text(
+                    "감지가 비활성 상태입니다.",
+                    style: new TextStyle(fontSize:25.0,
+                        color: const Color(0xFF000000),
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Roboto"),
+                  ),
+                  opacity: 0.3,
+                  duration: Duration(seconds: 1),
                 ),
-                opacity: 0.3,
-                duration: Duration(seconds: 1),
-              ),
-              Padding(padding: EdgeInsets.fromLTRB(0, 100, 0, 0)),
-              Padding(
-                padding: EdgeInsets.fromLTRB(0, 20, 10, 0),
-                child: new Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      widget.isSelected[0]?AnimatedOpacity(
-                        child: IconButton(
-                                onPressed: ()async{
-                                  // Get max 5 images
-                                  final List<ImageObject>? objects = await Navigator.of(context)
-                                      .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
-                                    return const ImagePicker(mode:0,maxCount:10000);
-                                  }));
+                Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
+                widget.isSelected[0]?AnimatedOpacity(
+                  child: new Text(
+                    "n 개의 사진에 개인정보가 감지되었습니다.",
+                    style: new TextStyle(fontSize:20.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w200,
+                        fontFamily: "Roboto"),
+                  ),
+                  opacity: 1,
+                  duration: Duration(seconds: 1),
+                ):AnimatedOpacity(
+                  child: Text(
+                    "활성화하여 개인정보를 보호하세요.",
+                    style: new TextStyle(fontSize:20.0,
+                        color: const Color(0xFF000000),
+                        fontWeight: FontWeight.w200,
+                        fontFamily: "Roboto"),
+                  ),
+                  opacity: 0.3,
+                  duration: Duration(seconds: 1),
+                ),
+                Padding(padding: EdgeInsets.fromLTRB(0, 100, 0, 0)),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 20, 10, 0),
+                  child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        widget.isSelected[0]?AnimatedOpacity(
+                          child: IconButton(
+                                  onPressed: ()async{
+                                    // Get max 5 images
+                                    final List<ImageObject>? objects = await Navigator.of(context)
+                                        .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
+                                      return const ImagePicker(mode:0,maxCount:10000);
+                                    }));
 
-                                  if ((objects?.length ?? 0) > 0) {
-                                    setState(() {
-                                      _imgObjs = objects!;
-                                    });
-                                  }
-                                },
-                                icon: Icon(
-                                    Icons.enhance_photo_translate_outlined,
-                                    color: Colors.white,
-                                    size: 48.0),
-                              ),
-                        opacity: 1,
-                        duration: Duration(seconds: 1),
-                      ):AnimatedOpacity(
-                              child: IconButton(
-                        onPressed: (){},
-                        icon: Icon(
-                              Icons.enhance_photo_translate_outlined,
-                              color: Colors.white,
-                              size: 48.0),
-                      ),
-                        opacity: 0.1,
-                        duration: Duration(seconds:1),
-                            ),
-
-                      widget.isSelected[0]?AnimatedOpacity(
-                        child: IconButton(
-                          onPressed: ()async{
-                            final List<ImageObject>? objects = await Navigator.of(context)
-                                .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
-                              return const ImagePicker(mode:1,maxCount: 10000);
-                            }));
-
-                            if ((objects?.length ?? 0) > 0) {
-                              setState(() {
-                                _imgObjs = objects!;
-                              });
-                            }
-                          },
-                          icon: Icon(
-                              Icons.photo_outlined,
-                              color: Colors.white,
-                              size: 48.0),
-                        ),
-                        duration: Duration(seconds: 1),
-                        opacity: 1,
-                      ):AnimatedOpacity(
-                        child: IconButton(
+                                    if ((objects?.length ?? 0) > 0) {
+                                      setState(() {
+                                        _imgObjs = objects!;
+                                      });
+                                    }
+                                  },
+                                  icon: Icon(
+                                      Icons.enhance_photo_translate_outlined,
+                                      color: Colors.white,
+                                      size: 48.0),
+                                ),
+                          opacity: 1,
+                          duration: Duration(seconds: 1),
+                        ):AnimatedOpacity(
+                                child: IconButton(
                           onPressed: (){},
                           icon: Icon(
-                              Icons.photo_outlined,
-                              color: Colors.white,
-                              size: 48.0),
+                                Icons.enhance_photo_translate_outlined,
+                                color: Colors.white,
+                                size: 48.0),
                         ),
-                        opacity: 0.1,
-                        duration: Duration(seconds: 1),
-                      ),
-                          ]
+                          opacity: 0.1,
+                          duration: Duration(seconds:1),
+                              ),
 
-                      ),
-              )
-            ]
-        )
-        ],
+                        widget.isSelected[0]?AnimatedOpacity(
+                          child: IconButton(
+                            onPressed: ()async{
+                              final List<ImageObject>? objects = await Navigator.of(context)
+                                  .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
+                                return const ImagePicker(mode:1,maxCount: 10000);
+                              }));
+
+                              if ((objects?.length ?? 0) > 0) {
+                                setState(() {
+                                  _imgObjs = objects!;
+                                });
+                              }
+                            },
+                            icon: Icon(
+                                Icons.photo_outlined,
+                                color: Colors.white,
+                                size: 48.0),
+                          ),
+                          duration: Duration(seconds: 1),
+                          opacity: 1,
+                        ):AnimatedOpacity(
+                          child: IconButton(
+                            onPressed: (){},
+                            icon: Icon(
+                                Icons.photo_outlined,
+                                color: Colors.white,
+                                size: 48.0),
+                          ),
+                          opacity: 0.1,
+                          duration: Duration(seconds: 1),
+                        ),
+                            ]
+
+                        ),
+                )
+              ]
+          )
+          ],
+        ),
       ),
 
     );

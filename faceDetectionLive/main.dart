@@ -7,7 +7,6 @@ import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
-import 'package:untitled33/home_page.dart';
 
 
 List<CameraDescription>cameras=[];

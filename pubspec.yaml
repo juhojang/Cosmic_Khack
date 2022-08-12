@@ -38,6 +38,10 @@ dependencies:
   intl: ^0.17.0
   advance_image_picker: ^0.1.7+1
   image_editor_dove: ^0.0.2
+  blurrycontainer: ^1.0.2
+  google_ml_kit: ^0.12.0
+  image_picker: ^0.8.5+3
+  camera: ^0.9.7+1
 
 dev_dependencies:
   flutter_test:
