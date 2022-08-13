@@ -63,7 +63,7 @@ class DefaultImageEditorDelegate extends ImageEditorDelegate{
       alignment: Alignment.center,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
-          gradient: const LinearGradient(colors: [Colors.white, Colors.white])),
+          gradient: const LinearGradient(colors: [Colors.transparent, Colors.transparent])),
       child: Text(
         '편집완료',
         style: TextStyle(fontSize: 17, color: Colors.greenAccent),
@@ -93,7 +93,12 @@ class DefaultImageEditorDelegate extends ImageEditorDelegate{
 
   @override
   Widget mosaicWidget(double limitSize, OperateType type, {required bool choosen}) {
-    return Icon(Icons.auto_awesome_mosaic, size: limitSize, color: operatorStatuscolor(choosen));
+    return Icon(Icons.blur_on_outlined, size: limitSize, color: operatorStatuscolor(choosen));
+  }
+  
+  @override
+  Widget autoMosaicWidget(double limitSize, OperateType type, {required bool choosen}) {
+    return Icon(Icons.blur_circular_outlined, size: limitSize, color: operatorStatuscolor(choosen));
   }
 
   @override
@@ -187,6 +192,8 @@ abstract class ImageEditorDelegate{
         return rotateWidget(_operateBtnSize, type, choosen: choosen);
       case OperateType.mosaic:
         return mosaicWidget(_operateBtnSize, type, choosen: choosen);
+      case OperateType.autoMasaic:
+        return autoMosaicWidget(_operateBtnSize, type, choosen: choosen);
     }
   }
 
@@ -242,6 +249,9 @@ abstract class ImageEditorDelegate{
   ///Mosaic widget
   /// * for paint some mosaic on canvas.
   Widget mosaicWidget(double limitSize, OperateType type, {required bool choosen});
+  
+
+  Widget autoMosaicWidget(double limitSize, OperateType type, {required bool choosen});
 
   ///Done widget
   /// * for save the edit action and generate a new image as result.
