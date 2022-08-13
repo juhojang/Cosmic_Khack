@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-import 'package:untitled20/showImage.dart';
 import 'package:intl/intl.dart';
 import 'package:advance_image_picker/advance_image_picker.dart';
 import 'package:camera/camera.dart';
@@ -115,6 +114,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool textScanning=false;
   List<ImageObject> _imgObjs = [];
   File? _image;
 
@@ -349,6 +349,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   print("why?1");
                                   final List<ImageObject>? objects = await Navigator.of(context)
                                       .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
+                                    textScanning=true;
                                     return const ImagePicker(mode:0,maxCount:10000);
                                   }));
 
@@ -384,6 +385,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             print("why?2");
                             final List<ImageObject>? objects = await Navigator.of(context)
                                 .push(PageRouteBuilder(pageBuilder: (context, animation, __) {
+                                  textScanning=true;
                               return const ImagePicker(mode:1,maxCount: 10000);
                             }));
 

@@ -32,11 +32,6 @@ bool textScanning=false;
 bool isWorking=false;
 
 
-
-
-
-
-
 class BackgroundPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -50,6 +45,32 @@ class BackgroundPainter extends CustomPainter {
           recognisedface[i].boundingBox.topLeft/1.75+Offset(0,65) & recognisedface[i]
               .boundingBox.size/1.7, background);
     }
+  }
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
+
+class BackgroundPainter2 extends CustomPainter {
+  BackgroundPainter2(this.elements);
+
+  final List<TextElement> elements;
+  @override
+  void paint(Canvas canvas, Size size) {
+    var background = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth=1
+      ..color = Colors.greenAccent
+      ..isAntiAlias=true;
+
+
+    for(int i=0;i<elements.length;i++)
+    {
+      canvas.drawRect(
+          elements[i].boundingBox.topLeft/1.75+Offset(0,65) & elements[i].boundingBox.size/1.7,background);
+      print(elements[i]);
+    }
+
+
   }
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
@@ -106,6 +127,8 @@ class ImageEditorState extends State<ImageEditor>
   ///Operation panel button's horizontal space.
   Widget get controlBtnSpacing => 5.hGap;
 
+  List<TextElement> _elements =[];
+
   void getRecognisedFace(File image) async{
     final inputImage=InputImage.fromFilePath(image.path);
     final FaceDetector=GoogleMlKit.vision.faceDetector();
@@ -113,6 +136,110 @@ class ImageEditorState extends State<ImageEditor>
     faceNumber=recognisedface.length;
     await FaceDetector.close();
 
+    final textDetector=GoogleMlKit.vision.textRecognizer();
+    RecognizedText recognisedText=await textDetector.processImage(inputImage);
+    await textDetector.close();
+
+    String email_pattern =
+        r"^(([\w!-_\.])*@([\w!-_\.])*\.[\w]{2,3})$";
+
+    String phoneNumber_pattern =
+        r"^(?:(010-\d{4})|(01[1|6|7|8|9]-\d{3,4}))-(\d{4})$";
+
+    // String Name_pattern =
+    //     r'^[가-힣]{2,4}$';
+
+    String zoominbunho =
+        r'^(?:[0-9]{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[1,2][0-9]|3[0,1]))-[1-4][0-9]{6}$';
+
+    String Zibunzooso =
+        r'^(([가-힣A-Za-z·\d~\-\.]+(읍|동)\s)[\d-]+)|(([가-힣A-Za-z·\d~\-\.]+(읍|동)\s)[\d][^시]+)$';
+
+    String doromyoung =
+        r'^((([가-힣]+(\d{1,5}|\d{1,5}(,|.)\d{1,5}|)+(읍|면|동|가|리))(^구|)((\d{1,5}(~|-)\d{1,5}|\d{1,5})(가|리|)|))([](산(\d{1,5}(~|-)\d{1,5}|\d{1,5}))|)|(([가-힣]|(\d{1,5}(~|-)\d{1,5})|\d{1,5})+(로|길)))$';
+
+    String woonjunmyunhu = r'^(\d{2}-\d{2}-\d{6}-\d{2})$';
+
+    String tongjang = r"^(\d{2,6}[ -]-?\d{2,6}[ -]-?\d{2,6}[ -]-?\d{2,6})$";
+
+    String card = r'^(\\d{4})-?(\\d{4})-?(\\d{4})-?(\\d{3,4})$';
+
+    RegExp regEx = RegExp(phoneNumber_pattern);
+    RegExp regEx2 = RegExp(email_pattern);
+    // RegExp regEx3 = RegExp(Name_pattern);
+    RegExp regEx4 = RegExp(zoominbunho);
+    RegExp regEx5 = RegExp(Zibunzooso);
+    RegExp regEx6 = RegExp(doromyoung);
+    RegExp regEx7 = RegExp(woonjunmyunhu);
+    RegExp regEx8 = RegExp(tongjang);
+    RegExp regEx9 = RegExp(card);
+
+    String mailAddress = "";
+
+    for (TextBlock block in recognisedText.blocks) {
+      for (TextLine line in block.lines) {
+        if (regEx.hasMatch(line.text)) {
+          mailAddress += '핸드폰 번호:'+line.text + '\n';
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+            print(element);
+          }
+        }
+        if (regEx2.hasMatch(line.text)) {
+          mailAddress += '이메일:'+line.text + '\n';
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        // if (regEx3.hasMatch(line.text)) {
+        //   mailAddress += '이름:'+line.text + '\n';
+        //
+        //   for (TextElement element in line.elements) {
+        //     _elements.add(element);
+        //   }
+        // }
+        if (regEx4.hasMatch(line.text)) {
+          mailAddress += '주민번호:'+line.text + '\n';
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        if (regEx5.hasMatch(line.text)) {
+          mailAddress += '지번 주소:'+line.text + '\n';
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        if (regEx6.hasMatch(line.text)) {
+          mailAddress += '도로명 주소:'+line.text + '\n';
+
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        if (regEx7.hasMatch(line.text)) {
+          mailAddress += '운전면허 번호:'+line.text + '\n';
+
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        if (regEx8.hasMatch(line.text)) {
+          mailAddress += '계좌번호:'+line.text + '\n';
+
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        if (regEx9.hasMatch(line.text)) {
+          mailAddress += '카드 번호:'+line.text + '\n';
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+      }
+    }
+    print(mailAddress);
     textScanning=false;
     setState(() {
 
@@ -120,6 +247,20 @@ class ImageEditorState extends State<ImageEditor>
   }
 
   Widget blurFace(int i){
+    return Positioned(
+      top: bluredface[i].boundingBox.topRight.dy/1.75+65,
+      left: bluredface[i].boundingBox.topLeft.dx/1.75,
+      child: BlurryContainer(
+        width: bluredface[i].boundingBox.width/1.7,
+        height: bluredface[i].boundingBox.height/1.7,
+        child: Container(),
+        color: Colors.white.withOpacity(0.10),
+        blur: 5,
+      ),
+    );
+  }
+
+  Widget blurFace2(int i){
     return Positioned(
       top: bluredface[i].boundingBox.topRight.dy/1.75+65,
       left: bluredface[i].boundingBox.topLeft.dx/1.75,
@@ -164,7 +305,7 @@ class ImageEditorState extends State<ImageEditor>
   static ImageEditorState? of(BuildContext context) {
     return context.findAncestorStateOfType<ImageEditorState>();
   }
-  
+
 
   @override
   void initState() {
@@ -208,107 +349,112 @@ class ImageEditorState extends State<ImageEditor>
               //text canvas
               for (int i =0;i<bluredface.length;i++) blurFace(i),
               Container(
-                width: 1000,
-                height: 1000,
-                color: Colors.transparent,
-                child: Listener(
-                  onPointerMove: (event2){
-                    print("working");
-                    Face? targetFace;
-                    for (int i =0;i<faceNumber;i++) {
-                      if(i<recognisedface.length)
-                      {
-                        if(event2.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
+                  width: 1000,
+                  height: 1000,
+                  color: Colors.transparent,
+                  child: Listener(
+                    onPointerMove: (event2){
+                      print("working");
+                      Face? targetFace;
+                      for (int i =0;i<faceNumber;i++) {
+                        if(i<recognisedface.length)
                         {
-                          if(event2.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                          if(event2.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
                           {
-                            targetFace=recognisedface[i];
-                            break;
+                            if(event2.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              targetFace=recognisedface[i];
+                              break;
+                            }
                           }
-                        }
-                      }
-                      else{
-                        if(event2.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
-                        {
-                          if(event2.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
-                          {
-                            targetFace=bluredface[i-recognisedface.length];
-                            break;
-                          }
-                        }
-
-                      }
-                    }
-                    if(targetFace!=null){
-                      if(event2.localPosition.dx>(targetFace.boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(targetFace.boundingBox.bottomRight.dx/1.75))
-                        if(event2.localPosition.dy>(targetFace.boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy<(targetFace.boundingBox.topLeft.dy/1.75+65))
-                        {
-                          eraseAccept=false;
                         }
                         else{
-                          eraseAccept=true;
-                        }
-
-                      if(eraseAccept)
-                      {
-                        eraseAccept=false;
-                        faceNumber=faceNumber-1;
-                        setState(() {
-                          recognisedface.remove(targetFace);
-                          bluredface.remove(targetFace);
-                          print("remove");
-                        });
-
-                      }
-                    }
-                  },
-                  onPointerDown: (event){
-                    for (int i =0;i<faceNumber;i++) {
-                      if(i<recognisedface.length)
-                      {
-                        if(event.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
-                        {
-                          if(event.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                          if(event2.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
                           {
-                            setState(() {
-                              bluredface.add(recognisedface[i]);
-                              recognisedface.remove(recognisedface[i]);
-                            });
-                            break;
+                            if(event2.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              targetFace=bluredface[i-recognisedface.length];
+                              break;
+                            }
+                          }
+
+                        }
+                      }
+                      if(targetFace!=null){
+                        if(event2.localPosition.dx>(targetFace.boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(targetFace.boundingBox.bottomRight.dx/1.75))
+                          if(event2.localPosition.dy>(targetFace.boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy<(targetFace.boundingBox.topLeft.dy/1.75+65))
+                          {
+                            eraseAccept=false;
+                          }
+                          else{
+                            eraseAccept=true;
+                          }
+
+                        if(eraseAccept)
+                        {
+                          eraseAccept=false;
+                          faceNumber=faceNumber-1;
+                          setState(() {
+                            recognisedface.remove(targetFace);
+                            bluredface.remove(targetFace);
+                            print("remove");
+                          });
+
+                        }
+                      }
+                    },
+                    onPointerDown: (event){
+                      for (int i =0;i<faceNumber;i++) {
+                        if(i<recognisedface.length)
+                        {
+                          if(event.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
+                          {
+                            if(event.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              setState(() {
+                                bluredface.add(recognisedface[i]);
+                                recognisedface.remove(recognisedface[i]);
+                              });
+                              break;
+                            }
                           }
                         }
-                      }
-                      else{
-                        if(event.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
-                        {
-                          if(event.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
+                        else{
+                          if(event.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
                           {
-                            setState(() {
-                              recognisedface.add(bluredface[i-recognisedface.length]);
-                              bluredface.remove(bluredface[i-recognisedface.length+1]);
-                            });
-                            break;
+                            if(event.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              setState(() {
+                                recognisedface.add(bluredface[i-recognisedface.length]);
+                                bluredface.remove(bluredface[i-recognisedface.length+1]);
+                              });
+                              break;
+                            }
                           }
+
                         }
-
                       }
-                    }
-                  },
+                    },
 
-                  child: Stack(children:[
-                    Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              _buildBrushCanvas(),
-                              //buildTextCanvas(),
-                            ],
-                          ),
-                    CustomPaint(
-                    painter:BackgroundPainter(),
-                  ),
-                  ]
-                ),
-                )
+                    child: Stack(children:[
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          _buildBrushCanvas(),
+                          //buildTextCanvas(),
+                        ],
+                      ),
+                      CustomPaint(
+                        painter:BackgroundPainter(),
+                      ),
+                      CustomPaint(
+                        painter:BackgroundPainter2(
+                            _elements
+                        ),
+                      )
+                    ]
+                    ),
+                  )
               ),
               ValueListenableBuilder<bool>(
                   valueListenable: _panelController.showAppBar,
@@ -380,8 +526,7 @@ class ImageEditorState extends State<ImageEditor>
                           padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                           child:
                           IconButton(onPressed:undo,
-                            icon: Icon(Icons.arrow_back_ios)))
-
+                              icon: Icon(Icons.arrow_back_ios)))
                     ],
                   ),
                 );
@@ -406,6 +551,12 @@ class ImageEditorState extends State<ImageEditor>
                     });
                   }
                 }),
+                OutlinedButton(onPressed: () {
+                  for(int i=0;i<faceNumber;i++)
+                  {
+                    blurFace(i)
+                  }
+                }, child: Text("자동 모자이크"), )
               ],
             ),
           )
@@ -488,7 +639,7 @@ class ImageEditorState extends State<ImageEditor>
 ///Little widget binding is for unified manage the widgets that has common style.
 /// * If you wanna custom this part, see [ImageEditorDelegate]
 mixin LittleWidgetBinding<T extends StatefulWidget> on State<T> {
-  
+
   ///go back widget
   Widget backWidget({VoidCallback? onPressed}) {
     return GestureDetector(
@@ -503,7 +654,7 @@ mixin LittleWidgetBinding<T extends StatefulWidget> on State<T> {
   Widget getOperateTypeRes(OperateType type, {required bool choosen}) {
     return ImageEditor.uiDelegate.buildOperateWidget(type, choosen: choosen);
   }
-  
+
   ///action done widget
   Widget doneButtonWidget({VoidCallback? onPressed}) {
     return GestureDetector(

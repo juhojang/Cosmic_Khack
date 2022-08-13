@@ -21,7 +21,6 @@ import '../common/portrait_mode_mixin.dart';
 import '../viewer/image_viewer.dart';
 import 'media_album.dart';
 
-/// Picker mode definition: Camera or Album (Photo gallery of device)
 class PickerMode {
   /// Camera picker.
   // TODO(rydmike): This const property name does not conform to Dart standards,
