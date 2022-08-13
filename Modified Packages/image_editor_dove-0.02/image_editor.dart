@@ -30,6 +30,7 @@ List<TextBlock> blocks=[];
 bool eraseAccept=false;
 bool textScanning=false;
 bool isWorking=false;
+int autoMosc=0;
 
 
 
@@ -164,7 +165,7 @@ class ImageEditorState extends State<ImageEditor>
   static ImageEditorState? of(BuildContext context) {
     return context.findAncestorStateOfType<ImageEditorState>();
   }
-  
+
 
   @override
   void initState() {
@@ -173,6 +174,7 @@ class ImageEditorState extends State<ImageEditor>
     _panelController.switchOperateType(OperateType.brush);
     getRecognisedFace(widget.originImage);
     bluredface=[];
+    autoMosc=0;
   }
 
 
@@ -208,107 +210,107 @@ class ImageEditorState extends State<ImageEditor>
               //text canvas
               for (int i =0;i<bluredface.length;i++) blurFace(i),
               Container(
-                width: 1000,
-                height: 1000,
-                color: Colors.transparent,
-                child: Listener(
-                  onPointerMove: (event2){
-                    print("working");
-                    Face? targetFace;
-                    for (int i =0;i<faceNumber;i++) {
-                      if(i<recognisedface.length)
-                      {
-                        if(event2.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
+                  width: 1000,
+                  height: 1000,
+                  color: Colors.transparent,
+                  child: Listener(
+                    onPointerMove: (event2){
+                      print("working");
+                      Face? targetFace;
+                      for (int i =0;i<faceNumber;i++) {
+                        if(i<recognisedface.length)
                         {
-                          if(event2.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                          if(event2.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
                           {
-                            targetFace=recognisedface[i];
-                            break;
+                            if(event2.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              targetFace=recognisedface[i];
+                              break;
+                            }
                           }
-                        }
-                      }
-                      else{
-                        if(event2.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
-                        {
-                          if(event2.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
-                          {
-                            targetFace=bluredface[i-recognisedface.length];
-                            break;
-                          }
-                        }
-
-                      }
-                    }
-                    if(targetFace!=null){
-                      if(event2.localPosition.dx>(targetFace.boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(targetFace.boundingBox.bottomRight.dx/1.75))
-                        if(event2.localPosition.dy>(targetFace.boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy<(targetFace.boundingBox.topLeft.dy/1.75+65))
-                        {
-                          eraseAccept=false;
                         }
                         else{
-                          eraseAccept=true;
-                        }
-
-                      if(eraseAccept)
-                      {
-                        eraseAccept=false;
-                        faceNumber=faceNumber-1;
-                        setState(() {
-                          recognisedface.remove(targetFace);
-                          bluredface.remove(targetFace);
-                          print("remove");
-                        });
-
-                      }
-                    }
-                  },
-                  onPointerDown: (event){
-                    for (int i =0;i<faceNumber;i++) {
-                      if(i<recognisedface.length)
-                      {
-                        if(event.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
-                        {
-                          if(event.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                          if(event2.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
                           {
-                            setState(() {
-                              bluredface.add(recognisedface[i]);
-                              recognisedface.remove(recognisedface[i]);
-                            });
-                            break;
+                            if(event2.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              targetFace=bluredface[i-recognisedface.length];
+                              break;
+                            }
+                          }
+
+                        }
+                      }
+                      if(targetFace!=null){
+                        if(event2.localPosition.dx>(targetFace.boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(targetFace.boundingBox.bottomRight.dx/1.75))
+                          if(event2.localPosition.dy>(targetFace.boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy<(targetFace.boundingBox.topLeft.dy/1.75+65))
+                          {
+                            eraseAccept=false;
+                          }
+                          else{
+                            eraseAccept=true;
+                          }
+
+                        if(eraseAccept)
+                        {
+                          eraseAccept=false;
+                          faceNumber=faceNumber-1;
+                          setState(() {
+                            recognisedface.remove(targetFace);
+                            bluredface.remove(targetFace);
+                            print("remove");
+                          });
+
+                        }
+                      }
+                    },
+                    onPointerDown: (event){
+                      for (int i =0;i<faceNumber;i++) {
+                        if(i<recognisedface.length)
+                        {
+                          if(event.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
+                          {
+                            if(event.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              setState(() {
+                                bluredface.add(recognisedface[i]);
+                                recognisedface.remove(recognisedface[i]);
+                              });
+                              break;
+                            }
                           }
                         }
-                      }
-                      else{
-                        if(event.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
-                        {
-                          if(event.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
+                        else{
+                          if(event.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
                           {
-                            setState(() {
-                              recognisedface.add(bluredface[i-recognisedface.length]);
-                              bluredface.remove(bluredface[i-recognisedface.length+1]);
-                            });
-                            break;
+                            if(event.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              setState(() {
+                                recognisedface.add(bluredface[i-recognisedface.length]);
+                                bluredface.remove(bluredface[i-recognisedface.length+1]);
+                              });
+                              break;
+                            }
                           }
+
                         }
-
                       }
-                    }
-                  },
+                    },
 
-                  child: Stack(children:[
-                    Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              _buildBrushCanvas(),
-                              //buildTextCanvas(),
-                            ],
-                          ),
-                    CustomPaint(
-                    painter:BackgroundPainter(),
-                  ),
-                  ]
-                ),
-                )
+                    child: Stack(children:[
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          _buildBrushCanvas(),
+                          //buildTextCanvas(),
+                        ],
+                      ),
+                      CustomPaint(
+                        painter:BackgroundPainter(),
+                      ),
+                    ]
+                    ),
+                  )
               ),
               ValueListenableBuilder<bool>(
                   valueListenable: _panelController.showAppBar,
@@ -365,14 +367,67 @@ class ImageEditorState extends State<ImageEditor>
       width: screenWidth,
       height: bottomBarHeight,
       padding: EdgeInsets.only(left: 16, right: 16, bottom: windowBottomBarHeight),
-      child: Column(
+      child: Row(
         children: [
+          Expanded(
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+                  child : _buildButton(OperateType.mosaic, '수동 모자이크', onPressed: () {
+                    if(painterController.drawStyle!=DrawStyle.mosaic)
+                    {
+                      setState(() {
+                        switchPainterMode(DrawStyle.mosaic);
+                      });
+                    }
+                    else{
+                      setState(() {
+                        switchPainterMode(DrawStyle.non);
+                      });
+                    }
+                  }
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [ Padding(
+                padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+                child : _buildButton(OperateType.autoMasaic, '자동 모자이크', onPressed: () {
+                  autoMosc=autoMosc+1;
+                  print(autoMosc);
+                  if(autoMosc%2==1)
+                  {
+                    for(int i=0;i<faceNumber;i++) {
+                      bluredface.add(recognisedface[0]);
+                      recognisedface.remove(recognisedface[0]);
+                    }
+                    setState(() {
+                    });
+                  }
+                  else{
+                    for(int i=0;i<faceNumber;i++) {
+                      recognisedface.add(bluredface[0]);
+                      bluredface.remove(bluredface[0]);
+                    }
+                    setState(() {
+                    });
+                  }
+                }
+                ),
+              ),
+              ],
+            ),
+          ),
           Expanded(
             child: ValueListenableBuilder<OperateType>(
               valueListenable: _panelController.operateType,
               builder: (ctx, value, child) {
                 return Opacity(
-                  opacity: _panelController.show2ndPanel() ? 1 : 0,
+                  opacity: _panelController.show2ndPanel() ? 1 : 1,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -380,7 +435,7 @@ class ImageEditorState extends State<ImageEditor>
                           padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                           child:
                           IconButton(onPressed:undo,
-                            icon: Icon(Icons.arrow_back_ios)))
+                            icon: Icon(Icons.arrow_back_ios),color: Colors.greenAccent,))
 
                     ],
                   ),
@@ -388,27 +443,6 @@ class ImageEditorState extends State<ImageEditor>
               },
             ),
           ),
-          Expanded(
-            child: Row(
-              children: [
-                _buildButton(OperateType.mosaic, '수동 모자이크', onPressed: () {
-                  if(painterController.drawStyle!=DrawStyle.mosaic)
-                  {
-                    setState(() {
-                      print("hi");
-                      switchPainterMode(DrawStyle.mosaic);
-                    });
-                  }
-                  else{
-                    setState(() {
-                      print("hi2");
-                      switchPainterMode(DrawStyle.non);
-                    });
-                  }
-                }),
-              ],
-            ),
-          )
         ],
       ),
     );
@@ -455,7 +489,13 @@ class ImageEditorState extends State<ImageEditor>
   Widget _buildButton(OperateType type, String txt, {VoidCallback? onPressed}) {
     return GestureDetector(
       onTap: () {
-        _panelController.switchOperateType(type);
+        if(_panelController.isCurrentOperateType(type))
+        {
+          _panelController.switchOperateType(OperateType.brush);
+        }
+        else{
+          _panelController.switchOperateType(type);
+        }
         onPressed?.call();
       },
       child: ValueListenableBuilder(
@@ -467,11 +507,11 @@ class ImageEditorState extends State<ImageEditor>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                getOperateTypeRes(type, choosen: painterController.drawStyle==DrawStyle.mosaic),
+                getOperateTypeRes(type, choosen: _panelController.isCurrentOperateType(type)),
                 Text(
                   txt,
                   style: TextStyle(
-                      color: painterController.drawStyle==DrawStyle.mosaic
+                      color: _panelController.isCurrentOperateType(type)
                           ? Colors.greenAccent : Colors.grey, fontSize: 11),
                 )
               ],
@@ -488,7 +528,7 @@ class ImageEditorState extends State<ImageEditor>
 ///Little widget binding is for unified manage the widgets that has common style.
 /// * If you wanna custom this part, see [ImageEditorDelegate]
 mixin LittleWidgetBinding<T extends StatefulWidget> on State<T> {
-  
+
   ///go back widget
   Widget backWidget({VoidCallback? onPressed}) {
     return GestureDetector(
@@ -503,7 +543,7 @@ mixin LittleWidgetBinding<T extends StatefulWidget> on State<T> {
   Widget getOperateTypeRes(OperateType type, {required bool choosen}) {
     return ImageEditor.uiDelegate.buildOperateWidget(type, choosen: choosen);
   }
-  
+
   ///action done widget
   Widget doneButtonWidget({VoidCallback? onPressed}) {
     return GestureDetector(
@@ -858,3 +898,6 @@ class CircleColorWidgetState extends State<CircleColorWidget> {
 
 
 }
+
+
+

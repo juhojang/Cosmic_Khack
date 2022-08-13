@@ -279,7 +279,8 @@ enum DrawStyle{
   ///use penColor
   normal,
   mosaic,
-  non
+  non,
+  autoMasaic
 }
 
 /// class for interaction with signature widget
