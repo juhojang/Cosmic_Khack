@@ -18,6 +18,7 @@ enum OperateType{
   flip,//flip image
   rotated,//rotate canvas
   mosaic,//draw mosaic
+  autoMasaic
 }
 
 class EditorPanelController {
