@@ -24,6 +24,7 @@ import 'widget/text_editor_page.dart';
 
 
 int faceNumber=0;
+int ocrNumber=0;
 List<Face> recognisedface=[];
 List<Face> bluredface=[];
 List<TextBlock> blocks=[];
@@ -31,10 +32,7 @@ bool eraseAccept=false;
 bool textScanning=false;
 bool isWorking=false;
 int autoMosc=0;
-
-
-
-
+List<TextElement> bluredOCR=[];
 
 
 
@@ -51,6 +49,32 @@ class BackgroundPainter extends CustomPainter {
           recognisedface[i].boundingBox.topLeft/1.75+Offset(0,65) & recognisedface[i]
               .boundingBox.size/1.7, background);
     }
+  }
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
+
+class BackgroundPainter2 extends CustomPainter {
+  BackgroundPainter2(this.elements);
+
+  final List<TextElement> elements;
+  @override
+  void paint(Canvas canvas, Size size) {
+    var background = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth=1
+      ..color = Colors.greenAccent
+      ..isAntiAlias=true;
+
+
+    for(int i=0;i<elements.length;i++)
+    {
+      canvas.drawRect(
+          elements[i].boundingBox.topLeft/1.75+Offset(0,65) & elements[i].boundingBox.size/1.7,background);
+      print(elements[i]);
+    }
+
+
   }
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
@@ -107,13 +131,150 @@ class ImageEditorState extends State<ImageEditor>
   ///Operation panel button's horizontal space.
   Widget get controlBtnSpacing => 5.hGap;
 
+  List<TextElement> _elements =[];
+
+  List<EntityType> filter=[EntityType.address,EntityType.email,EntityType.trackingNumber,EntityType.paymentCard,EntityType.phone,EntityType.unknown,EntityType.money,EntityType.dateTime];
+
+  String scannedText="";
+
+  bool done=false;
+
+
   void getRecognisedFace(File image) async{
     final inputImage=InputImage.fromFilePath(image.path);
+
     final FaceDetector=GoogleMlKit.vision.faceDetector();
     recognisedface=await FaceDetector.processImage(inputImage);
     faceNumber=recognisedface.length;
     await FaceDetector.close();
 
+    final textDetector=GoogleMlKit.vision.textRecognizer();
+    RecognizedText recognisedText=await textDetector.processImage(inputImage);
+
+    scannedText="";
+
+    for (TextBlock block in recognisedText.blocks){
+      for(TextLine line in block.lines){
+        scannedText=scannedText+line.text;
+      }
+    }
+
+    List<EntityAnnotation> informationresult = await EntityExtractor(language: EntityExtractorLanguage.korean,).annotateText(scannedText,entityTypesFilter:filter );
+    await textDetector.close();
+
+
+    String email_pattern =
+        r"^(([\w!-_\.])*@([\w!-_\.])*\.[\w]{2,3})$";
+
+    String phoneNumber_pattern =
+        r"^(?:(010-\d{4})|(01[1|6|7|8|9]-\d{3,4}))-(\d{4})$";
+
+    String Name_pattern =
+     r'^[가-힣]{2,4}$';
+
+    String zoominbunho =
+        r'^(?:[0-9]{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[1,2][0-9]|3[0,1]))-[1-4][0-9]{6}$';
+
+    String Zibunzooso =
+        r'^(([가-힣A-Za-z·\d~\-\.]+(읍|동)\s)[\d-]+)|(([가-힣A-Za-z·\d~\-\.]+(읍|동)\s)[\d][^시]+)$';
+
+    String doromyoung =
+        r'^((([가-힣]+(\d{1,5}|\d{1,5}(,|.)\d{1,5}|)+(읍|면|동|가|리))(^구|)((\d{1,5}(~|-)\d{1,5}|\d{1,5})(가|리|)|))([](산(\d{1,5}(~|-)\d{1,5}|\d{1,5}))|)|(([가-힣]|(\d{1,5}(~|-)\d{1,5})|\d{1,5})+(로|길)))$';
+
+    String woonjunmyunhu = r'^(\d{2}-\d{2}-\d{6}-\d{2})$';
+
+    String tongjang = r"^(\d{2,6}[ -]-?\d{2,6}[ -]-?\d{2,6}[ -]-?\d{2,6})$";
+
+    String card = r'^(\\d{4})-?(\\d{4})-?(\\d{4})-?(\\d{3,4})$';
+
+    RegExp regEx = RegExp(phoneNumber_pattern);
+    RegExp regEx2 = RegExp(email_pattern);
+    RegExp regEx3 = RegExp(Name_pattern);
+    RegExp regEx4 = RegExp(zoominbunho);
+    RegExp regEx5 = RegExp(Zibunzooso);
+    RegExp regEx6 = RegExp(doromyoung);
+    RegExp regEx7 = RegExp(woonjunmyunhu);
+    RegExp regEx8 = RegExp(tongjang);
+    RegExp regEx9 = RegExp(card);
+
+
+
+
+    for (TextBlock block in recognisedText.blocks) {
+      for (TextLine line in block.lines) {
+        for(int i=0;i<informationresult.length;i++)
+        {
+          if (RegExp(informationresult[i].text).hasMatch(line.text)) {
+            for (TextElement element in line.elements) {
+              _elements.add(element);
+            }
+            done=true;
+        }
+        }
+
+        if(done)
+          {
+            done=false;
+            continue;
+          }
+
+
+        if (regEx.hasMatch(line.text)) {
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+
+        else if (regEx2.hasMatch(line.text)) {
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+
+        }
+        else if (regEx3.hasMatch(line.text)) {
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+
+        else if (regEx4.hasMatch(line.text)) {
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        else if (regEx5.hasMatch(line.text)) {
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        else if (regEx6.hasMatch(line.text)) {
+
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        else if (regEx7.hasMatch(line.text)) {
+
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        else if (regEx8.hasMatch(line.text)) {
+
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+        else if (regEx9.hasMatch(line.text)) {
+          for (TextElement element in line.elements) {
+            _elements.add(element);
+          }
+        }
+      }
+    }
+
+    ocrNumber=_elements.length;
+    print(_elements);
     textScanning=false;
     setState(() {
 
@@ -127,6 +288,19 @@ class ImageEditorState extends State<ImageEditor>
       child: BlurryContainer(
         width: bluredface[i].boundingBox.width/1.7,
         height: bluredface[i].boundingBox.height/1.7,
+        child: Container(),
+        color: Colors.white.withOpacity(0.10),
+        blur: 5,
+      ),
+    );
+  }
+  Widget blurOCR(int i){
+    return Positioned(
+      top: bluredOCR[i].boundingBox.topRight.dy/1.75+65,
+      left: bluredOCR[i].boundingBox.topLeft.dx/1.75,
+      child: BlurryContainer(
+        width: bluredOCR[i].boundingBox.width/1.7,
+        height: bluredOCR[i].boundingBox.height/1.7,
         child: Container(),
         color: Colors.white.withOpacity(0.10),
         blur: 5,
@@ -174,6 +348,7 @@ class ImageEditorState extends State<ImageEditor>
     _panelController.switchOperateType(OperateType.brush);
     getRecognisedFace(widget.originImage);
     bluredface=[];
+    bluredOCR=[];
     autoMosc=0;
   }
 
@@ -204,11 +379,9 @@ class ImageEditorState extends State<ImageEditor>
                       ],
                     ),
                   )),
-              //bottom operation(control) bar
 
-              //trash bin
-              //text canvas
               for (int i =0;i<bluredface.length;i++) blurFace(i),
+              for (int i =0;i<bluredOCR.length;i++) blurOCR(i),
               Container(
                   width: 1000,
                   height: 1000,
@@ -217,6 +390,8 @@ class ImageEditorState extends State<ImageEditor>
                     onPointerMove: (event2){
                       print("working");
                       Face? targetFace;
+                      TextElement? targetOCR;
+
                       for (int i =0;i<faceNumber;i++) {
                         if(i<recognisedface.length)
                         {
@@ -241,6 +416,30 @@ class ImageEditorState extends State<ImageEditor>
 
                         }
                       }
+                      for (int i =0;i<ocrNumber;i++) {
+                        if(i<_elements.length)
+                        {
+                          if(event2.localPosition.dx>(_elements[i].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(_elements[i].boundingBox.bottomRight.dx/1.75))
+                          {
+                            if(event2.localPosition.dy<(_elements[i].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(_elements[i].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              targetOCR=_elements[i];
+                              break;
+                            }
+                          }
+                        }
+                        else{
+                          if(event2.localPosition.dx>(bluredOCR[i-_elements.length].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(bluredOCR[i-_elements.length].boundingBox.bottomRight.dx/1.75))
+                          {
+                            if(event2.localPosition.dy<(bluredOCR[i-_elements.length].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(bluredOCR[i-_elements.length].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              targetOCR=bluredOCR[i-_elements.length];
+                              break;
+                            }
+                          }
+
+                        }
+                      }
                       if(targetFace!=null){
                         if(event2.localPosition.dx>(targetFace.boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(targetFace.boundingBox.bottomRight.dx/1.75))
                           if(event2.localPosition.dy>(targetFace.boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy<(targetFace.boundingBox.topLeft.dy/1.75+65))
@@ -258,6 +457,28 @@ class ImageEditorState extends State<ImageEditor>
                           setState(() {
                             recognisedface.remove(targetFace);
                             bluredface.remove(targetFace);
+                            print("remove");
+                          });
+
+                        }
+                      }
+                      if(targetOCR!=null){
+                        if(event2.localPosition.dx>(targetOCR.boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(targetOCR.boundingBox.bottomRight.dx/1.75))
+                          if(event2.localPosition.dy>(targetOCR.boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy<(targetOCR.boundingBox.topLeft.dy/1.75+65))
+                          {
+                            eraseAccept=false;
+                          }
+                          else{
+                            eraseAccept=true;
+                          }
+
+                        if(eraseAccept)
+                        {
+                          eraseAccept=false;
+                          ocrNumber=ocrNumber-1;
+                          setState(() {
+                            _elements.remove(targetOCR);
+                            bluredOCR.remove(targetOCR);
                             print("remove");
                           });
 
@@ -295,6 +516,36 @@ class ImageEditorState extends State<ImageEditor>
 
                         }
                       }
+                      for (int i =0;i<ocrNumber;i++) {
+                        if(i<_elements.length)
+                        {
+                          if(event.localPosition.dx>(_elements[i].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(_elements[i].boundingBox.bottomRight.dx/1.75))
+                          {
+                            if(event.localPosition.dy<(_elements[i].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(_elements[i].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              setState(() {
+                                bluredOCR.add(_elements[i]);
+                                _elements.remove(_elements[i]);
+                              });
+                              break;
+                            }
+                          }
+                        }
+                        else{
+                          if(event.localPosition.dx>(bluredOCR[i-_elements.length].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(bluredOCR[i-_elements.length].boundingBox.bottomRight.dx/1.75))
+                          {
+                            if(event.localPosition.dy<(bluredOCR[i-_elements.length].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(bluredOCR[i-_elements.length].boundingBox.topLeft.dy/1.75+65))
+                            {
+                              setState(() {
+                                _elements.add(bluredOCR[i-_elements.length]);
+                                bluredOCR.remove(bluredOCR[i-_elements.length+1]);
+                              });
+                              break;
+                            }
+                          }
+
+                        }
+                      }
                     },
 
                     child: Stack(children:[
@@ -308,10 +559,13 @@ class ImageEditorState extends State<ImageEditor>
                       CustomPaint(
                         painter:BackgroundPainter(),
                       ),
-                    ]
-                    ),
+                      CustomPaint(
+                        painter:BackgroundPainter2(_elements),
+                      )
+                    ]),
                   )
               ),
+
               ValueListenableBuilder<bool>(
                   valueListenable: _panelController.showAppBar,
                   builder: (ctx, value, child) {
@@ -405,6 +659,10 @@ class ImageEditorState extends State<ImageEditor>
                       bluredface.add(recognisedface[0]);
                       recognisedface.remove(recognisedface[0]);
                     }
+                    for(int i=0;i<ocrNumber;i++) {
+                      bluredOCR.add(_elements[0]);
+                      _elements.remove(_elements[0]);
+                    }
                     setState(() {
                     });
                   }
@@ -412,6 +670,10 @@ class ImageEditorState extends State<ImageEditor>
                     for(int i=0;i<faceNumber;i++) {
                       recognisedface.add(bluredface[0]);
                       bluredface.remove(bluredface[0]);
+                    }
+                    for(int i=0;i<ocrNumber;i++) {
+                      _elements.add(bluredOCR[0]);
+                      bluredOCR.remove(bluredOCR[0]);
                     }
                     setState(() {
                     });
@@ -898,6 +1160,5 @@ class CircleColorWidgetState extends State<CircleColorWidget> {
 
 
 }
-
 
 
