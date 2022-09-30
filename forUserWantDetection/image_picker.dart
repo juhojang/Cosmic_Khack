@@ -1633,7 +1633,7 @@ class _ImagePickerState extends State<ImagePicker>
 class FaceDetectorPainter extends CustomPainter{
   final List<Face>faces;
   final Size absoluteImageSize;
-  final InputImageRotation rotation;
+  final Rotation rotation;
 
   FaceDetectorPainter(this.faces,this.absoluteImageSize,this.rotation);
 

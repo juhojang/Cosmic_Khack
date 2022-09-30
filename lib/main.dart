@@ -4,13 +4,19 @@ import 'package:flutter/services.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:advance_image_picker/advance_image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled20/regex_model.dart';
+import 'package:flutter_chip_tags/flutter_chip_tags.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return ErrorWidget(details.exception);
   };
-  runApp(new MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => Regex_model(isSwitched1: false, isSwitched2: false, isSwitched3: false, isSwitched4: false, isSwitched5: false, isSwitched6: false, isSwitched7: false, isSwitched8: false, Custom1: false,Custom2: false,Custom3: false),
+      child: new MyApp())
+  );
 }
 class MyApp extends StatelessWidget {
 
@@ -30,9 +36,9 @@ class MyApp extends StatelessWidget {
             {required BuildContext context,
               required File file,
               required String title,
-              int maxWidth = 1080,
-              int maxHeight = 1920,
-              int compressQuality = 90,
+              int maxWidth = 4032,
+              int maxHeight = 3024,
+              int compressQuality = 100,
               ImagePickerConfigs? configs}) async =>
             Navigator.of(context).push(MaterialPageRoute(
                 fullscreenDialog: true,
@@ -49,9 +55,9 @@ class MyApp extends StatelessWidget {
             {required BuildContext context,
               required File file,
               required String title,
-              int maxWidth = 1080,
-              int maxHeight = 1920,
-              int compressQuality = 90,
+              int maxWidth = 4032,
+              int maxHeight = 3024,
+              int compressQuality = 100,
               ImagePickerConfigs? configs}) async =>
             Navigator.of(context).push(MaterialPageRoute(
                 fullscreenDialog: true,
@@ -109,8 +115,71 @@ class _MyHomePageState extends State<MyHomePage> {
   List<ImageObject> _imgObjs = [];
   File? _image;
 
+  final myController = TextEditingController();
+
+  final List<String> blurmokrok=['이거','저거','요고','조고'];
+  late String inputTitle;
+
+  void FlutterDialog2() {
+    showDialog(
+        context: context,
+        //barrierDismissible - Dialog를 제외한 다른 화면 터치 x
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0)),
+            //Dialog Main Title
+            title: Column(
+              children: <Widget>[
+                new Text("Blind 하고 싶은 Text를 입력하세요."),
+                ChipTags(
+                  list: blurmokrok,
+                  chipColor: Colors.green,
+                  iconColor: Colors.white,
+                  textColor: Colors.white,
+                  chipPosition: ChipPosition.above,
+                  separator: "a",
+                  createTagOnSubmit: false,
+                  decoration: InputDecoration(hintText: "Your Custom Hint"),
+                  keyboardType: TextInputType.text,
+                ),
+              ],
+              
+            ),
+            //
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            actions: <Widget>[
+              TextButton(
+                child:Text('취소'),
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text("확인"),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   var isSwitched=false;
+  // var isSwitched1=false;
+  // var isSwitched2=false;
+  // var isSwitched3=false;
+  // var isSwitched4=false;
+  // var isSwitched5=false;
+  // var isSwitched6=false;
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -162,6 +231,170 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             ListTile(
+              title:Text('블러 처리 목록',style: TextStyle(fontSize: 20.0),),
+              trailing:
+              FittedBox(
+                fit:BoxFit.fill,
+                child: Row(
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.menu),
+                      onPressed: (){
+
+                      }
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: (){
+                        FlutterDialog2();
+                      },
+                    )
+                  ]
+                )
+              )
+            ),
+            ListTile(
+              title:Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Text('얼굴')),
+              trailing: Switch(
+                value: Provider.of<Regex_model>(context).isSwitched1,
+                onChanged: (value){
+                  setState(() {
+                    Provider.of<Regex_model>(context,listen: false).changeRegex1();
+                  });
+                },
+              ),
+            ),ListTile(
+              title:Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Text('이메일 주소')),
+              trailing: Switch(
+                value: Provider.of<Regex_model>(context).isSwitched7,
+                onChanged: (value){
+                  setState(() {
+                    Provider.of<Regex_model>(context,listen: false).changeRegex7();
+                  });
+                },
+              ),
+            ),ListTile(
+              title:Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Text('주민등록번호')),
+              trailing: Switch(
+                value: Provider.of<Regex_model>(context).isSwitched8,
+                onChanged: (value){
+                  setState(() {
+                    Provider.of<Regex_model>(context,listen: false).changeRegex8();
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title:Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Text('핸드폰 번호')),
+              trailing: Switch(
+                value: Provider.of<Regex_model>(context).isSwitched2,
+                onChanged: (value){
+                  setState(() {
+                    Provider.of<Regex_model>(context,listen: false).changeRegex2();
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title:Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Text('주소')),
+              trailing: Switch(
+                value: Provider.of<Regex_model>(context).isSwitched3,
+                onChanged: (value){
+                  setState(() {
+                    Provider.of<Regex_model>(context,listen: false).changeRegex3();
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title:Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Text('운전면허 번호')),
+              trailing: Switch(
+                value: Provider.of<Regex_model>(context).isSwitched4,
+                onChanged: (value){
+                  setState(() {
+                    Provider.of<Regex_model>(context,listen: false).changeRegex4();
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title:Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Text('계좌번호')),
+              trailing: Switch(
+                value: Provider.of<Regex_model>(context).isSwitched5,
+                onChanged: (value){
+                  setState(() {
+                    Provider.of<Regex_model>(context,listen: false).changeRegex5();
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title:Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Text('카드 번호')),
+              trailing: Switch(
+                value: Provider.of<Regex_model>(context).isSwitched6,
+                onChanged: (value){
+                  setState(() {
+                    Provider.of<Regex_model>(context,listen: false).changeRegex6();
+                  });
+                },
+              ),
+            ),
+            // ListTile(
+            //   title:Padding(
+            //       padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+            //       child: Text('Custom1')),
+            //   trailing: Switch(
+            //     value: Provider.of<Regex_model>(context).Custom1,
+            //     onChanged: (value){
+            //       setState(() {
+            //         Provider.of<Regex_model>(context,listen: false).changeRegex9();
+            //       });
+            //     },
+            //   ),
+            // ),
+            // ListTile(
+            //   title:Padding(
+            //       padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+            //       child: Text('Custom2')),
+            //   trailing: Switch(
+            //     value: Provider.of<Regex_model>(context).Custom2,
+            //     onChanged: (value){
+            //       setState(() {
+            //         Provider.of<Regex_model>(context,listen: false).changeRegex10();
+            //       });
+            //     },
+            //   ),
+            // ),
+            // ListTile(
+            //   title:Padding(
+            //       padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+            //       child: Text('Custom3')),
+            //   trailing: Switch(
+            //     value: Provider.of<Regex_model>(context).Custom3,
+            //     onChanged: (value){
+            //       setState(() {
+            //         Provider.of<Regex_model>(context,listen: false).changeRegex11();
+            //       });
+            //     },
+            //   ),
+            // ),
+            ListTile(
               title:Text('버전명시',style: TextStyle(fontSize: 20.0),),
             ),
             Padding(
@@ -188,6 +421,8 @@ class _MyHomePageState extends State<MyHomePage> {
               width: widget.isSelected[0]? 300: 300,
               height: widget.isSelected[0]? 130: 130,
               color: widget.isSelected[0]? Colors.greenAccent: Colors.white,
+
+
               duration: Duration(seconds: 2),
               curve: Curves.fastLinearToSlowEaseIn,
               child: Row(
@@ -379,3 +614,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+

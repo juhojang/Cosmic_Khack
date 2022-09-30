@@ -21,15 +21,24 @@ import 'widget/editor_panel_controller.dart';
 import 'widget/float_text_widget.dart';
 import 'widget/image_editor_delegate.dart';
 import 'widget/text_editor_page.dart';
-
+import 'package:provider/provider.dart';
+import 'package:untitled20/regex_model.dart';
 
 int faceNumber=0;
+int ocrNumber=0;
 List<Face> recognisedface=[];
 List<Face> bluredface=[];
 List<TextBlock> blocks=[];
 bool eraseAccept=false;
 bool textScanning=false;
 bool isWorking=false;
+int autoMosc=0;
+List<TextElement> bluredOCR=[];
+double imageWidth =0;
+double imageHeight =0;
+double size_width =0;
+double size_height =0;
+
 
 
 class BackgroundPainter extends CustomPainter {
@@ -37,14 +46,37 @@ class BackgroundPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var background = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth=3
+      ..strokeWidth=1
       ..color = Colors.greenAccent
       ..isAntiAlias=true;
     for (int i =0;i<recognisedface.length;i++) {
       canvas.drawRect(
-          recognisedface[i].boundingBox.topLeft/1.75+Offset(0,65) & recognisedface[i]
-              .boundingBox.size/1.7, background);
+          Rect.fromLTRB(
+            recognisedface[i].boundingBox.left * size.width / imageWidth,
+            recognisedface[i].boundingBox.top * size.height / imageHeight,
+            recognisedface[i].boundingBox.right * size.width / imageWidth,
+            recognisedface[i].boundingBox.bottom * size.height / imageHeight,
+          )
+          // recognisedface[i].boundingBox.topLeft * size.width / imageWidth & recognisedface[i]
+          //     .boundingBox.size * size.width / imageWidth
+          , background);
+
+
     }
+    size_width = size.width;
+    size_height = size.height;
+
+    // print('size.width');
+    // print(size.width);
+
+    // print('imageWidth');
+    // print(imageWidth);
+
+    // print('size.height');
+    // print(size.height);
+
+    // print('imageheight');
+    // print(imageHeight);
   }
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
@@ -66,8 +98,15 @@ class BackgroundPainter2 extends CustomPainter {
     for(int i=0;i<elements.length;i++)
     {
       canvas.drawRect(
-          elements[i].boundingBox.topLeft/1.75+Offset(0,65) & elements[i].boundingBox.size/1.7,background);
-      print(elements[i]);
+          Rect.fromLTRB(
+            elements[i].boundingBox.left * size.width / imageWidth,
+            elements[i].boundingBox.top * size.height / imageHeight,
+            elements[i].boundingBox.right * size.width / imageWidth,
+            elements[i].boundingBox.bottom * size.height / imageHeight,
+          ),background);
+
+      //elements[i].boundingBox.topLeft * size.width / imageWidth & elements[i].boundingBox.size * size.width / imageWidth ,background);
+      //print(elements[i]);
     }
 
 
@@ -129,16 +168,39 @@ class ImageEditorState extends State<ImageEditor>
 
   List<TextElement> _elements =[];
 
+  List<EntityType> filter=[EntityType.address,EntityType.email,EntityType.trackingNumber,EntityType.paymentCard,EntityType.phone,EntityType.unknown,EntityType.money,EntityType.dateTime];
+
+  String scannedText="";
+
+  bool done=false;
+
+
   void getRecognisedFace(File image) async{
     final inputImage=InputImage.fromFilePath(image.path);
-    final FaceDetector=GoogleMlKit.vision.faceDetector();
-    recognisedface=await FaceDetector.processImage(inputImage);
-    faceNumber=recognisedface.length;
-    await FaceDetector.close();
+
+    File test = new File(image.path);
+    var decodedImage = await decodeImageFromList(test.readAsBytesSync());
+    imageWidth = decodedImage.width.toDouble();
+    imageHeight = decodedImage.height.toDouble();
+
+    print('얼굴 true or false');
+    print(Provider.of<Regex_model>(context,listen: false).isSwitched1);
+
+    if(Provider.of<Regex_model>(context,listen: false).isSwitched1==true) {
+      final FaceDetector = GoogleMlKit.vision.faceDetector();
+      recognisedface = await FaceDetector.processImage(inputImage);
+      faceNumber = recognisedface.length;
+      await FaceDetector.close();
+    }
 
     final textDetector=GoogleMlKit.vision.textRecognizer();
     RecognizedText recognisedText=await textDetector.processImage(inputImage);
+
+    scannedText="";
+
+    List<EntityAnnotation> informationresult = await EntityExtractor(language: EntityExtractorLanguage.korean,).annotateText(scannedText,entityTypesFilter:filter );
     await textDetector.close();
+
 
     String email_pattern =
         r"^(([\w!-_\.])*@([\w!-_\.])*\.[\w]{2,3})$";
@@ -174,72 +236,124 @@ class ImageEditorState extends State<ImageEditor>
     RegExp regEx8 = RegExp(tongjang);
     RegExp regEx9 = RegExp(card);
 
-    String mailAddress = "";
+    // for(TextBlock block in recognisedText.blocks)
+    // {
+    //   if(regEx5.hasMatch(block.text)){
+    //     for(TextLine line in block.lines) {
+    //       for (TextElement element in line.elements) {
+    //         _elements.add(element);
+    //         print('5번 block걸렸다~');
+    //         print(element);
+    //       }
+    //     }
+    //   }
+    // }
+    //
+    // for(TextBlock block in recognisedText.blocks)
+    // {
+    //   if(regEx6.hasMatch(block.text)){
+    //     for(TextLine line in block.lines) {
+    //       for (TextElement element in line.elements) {
+    //         _elements.add(element);
+    //         print('6번 block걸렸다~');
+    //         print(element);
+    //       }
+    //     }
+    //   }
+    // }
+
 
     for (TextBlock block in recognisedText.blocks) {
       for (TextLine line in block.lines) {
-        if (regEx.hasMatch(line.text)) {
-          mailAddress += '핸드폰 번호:'+line.text + '\n';
+        // for(int i=0;i<informationresult.length;i++)
+        // {
+        //   if (RegExp(informationresult[i].text).hasMatch(line.text)) {
+        //     for (TextElement element in line.elements) {
+        //       _elements.add(element);
+        //     }
+        //     done=true;
+        //   }
+        // }
+
+        // if(done)
+        // {
+        //   done=false;
+        //   continue;
+        // }
+
+
+        if (regEx.hasMatch(line.text)&&Provider.of<Regex_model>(context,listen: false).isSwitched2==true) {
           for (TextElement element in line.elements) {
             _elements.add(element);
+            print('핸드폰 번호');
             print(element);
           }
         }
-        if (regEx2.hasMatch(line.text)) {
-          mailAddress += '이메일:'+line.text + '\n';
+
+        else if (regEx2.hasMatch(line.text)&&Provider.of<Regex_model>(context,listen: false).isSwitched7==true) {
           for (TextElement element in line.elements) {
             _elements.add(element);
+            print('이메일 주소');
+            print(element);
           }
+
         }
-        // if (regEx3.hasMatch(line.text)) {
-        //   mailAddress += '이름:'+line.text + '\n';
-        //
+        // else if (regEx3.hasMatch(line.text)) {
         //   for (TextElement element in line.elements) {
         //     _elements.add(element);
+        //     print('이름');
+        //     print(element);
         //   }
         // }
-        if (regEx4.hasMatch(line.text)) {
-          mailAddress += '주민번호:'+line.text + '\n';
+
+        else if (regEx4.hasMatch(line.text)&&Provider.of<Regex_model>(context,listen: false).isSwitched8==true) {
           for (TextElement element in line.elements) {
             _elements.add(element);
+            print('주민 번호');
+            print(element);
           }
         }
-        if (regEx5.hasMatch(line.text)) {
-          mailAddress += '지번 주소:'+line.text + '\n';
+        else if (regEx5.hasMatch(line.text)&&Provider.of<Regex_model>(context,listen: false).isSwitched3==true) {
           for (TextElement element in line.elements) {
             _elements.add(element);
+            print('지번');
           }
         }
-        if (regEx6.hasMatch(line.text)) {
-          mailAddress += '도로명 주소:'+line.text + '\n';
+        else if (regEx6.hasMatch(line.text)&&Provider.of<Regex_model>(context,listen: false).isSwitched3==true) {
 
           for (TextElement element in line.elements) {
             _elements.add(element);
+            print('도로명');
           }
         }
-        if (regEx7.hasMatch(line.text)) {
-          mailAddress += '운전면허 번호:'+line.text + '\n';
+        else if (regEx7.hasMatch(line.text)&&Provider.of<Regex_model>(context,listen: false).isSwitched4==true) {
 
           for (TextElement element in line.elements) {
             _elements.add(element);
+            print('운전면허 번호');
+            print(element);
           }
         }
-        if (regEx8.hasMatch(line.text)) {
-          mailAddress += '계좌번호:'+line.text + '\n';
+        else if (regEx8.hasMatch(line.text)&&Provider.of<Regex_model>(context,listen: false).isSwitched5==true) {
 
           for (TextElement element in line.elements) {
             _elements.add(element);
+            print('계좌번호');
+            print(element);
           }
         }
-        if (regEx9.hasMatch(line.text)) {
-          mailAddress += '카드 번호:'+line.text + '\n';
+        else if (regEx9.hasMatch(line.text)&&Provider.of<Regex_model>(context,listen: false).isSwitched6==true) {
           for (TextElement element in line.elements) {
             _elements.add(element);
+            print('카드번호');
+            print(element);
           }
         }
       }
     }
-    print(mailAddress);
+
+    ocrNumber=_elements.length;
+    // print(_elements);
     textScanning=false;
     setState(() {
 
@@ -248,25 +362,24 @@ class ImageEditorState extends State<ImageEditor>
 
   Widget blurFace(int i){
     return Positioned(
-      top: bluredface[i].boundingBox.topRight.dy/1.75+65,
-      left: bluredface[i].boundingBox.topLeft.dx/1.75,
+      top: (bluredface[i].boundingBox.topRight.dy * size_height / imageHeight) + headerHeight,
+      left: bluredface[i].boundingBox.topLeft.dx * size_width / imageWidth,
       child: BlurryContainer(
-        width: bluredface[i].boundingBox.width/1.7,
-        height: bluredface[i].boundingBox.height/1.7,
+        width: bluredface[i].boundingBox.width *size_width / imageWidth,
+        height: bluredface[i].boundingBox.height * size_height / imageHeight,
         child: Container(),
         color: Colors.white.withOpacity(0.10),
         blur: 5,
       ),
     );
   }
-
-  Widget blurFace2(int i){
+  Widget blurOCR(int i){
     return Positioned(
-      top: bluredface[i].boundingBox.topRight.dy/1.75+65,
-      left: bluredface[i].boundingBox.topLeft.dx/1.75,
+      top: (bluredOCR[i].boundingBox.topRight.dy * size_height / imageHeight) + headerHeight,
+      left: bluredOCR[i].boundingBox.topLeft.dx * size_width / imageWidth,
       child: BlurryContainer(
-        width: bluredface[i].boundingBox.width/1.7,
-        height: bluredface[i].boundingBox.height/1.7,
+        width: bluredOCR[i].boundingBox.width * size_width / imageWidth,
+        height: bluredOCR[i].boundingBox.height * size_height / imageHeight,
         child: Container(),
         color: Colors.white.withOpacity(0.10),
         blur: 5,
@@ -314,6 +427,8 @@ class ImageEditorState extends State<ImageEditor>
     _panelController.switchOperateType(OperateType.brush);
     getRecognisedFace(widget.originImage);
     bluredface=[];
+    bluredOCR=[];
+    autoMosc=0;
   }
 
 
@@ -343,119 +458,209 @@ class ImageEditorState extends State<ImageEditor>
                       ],
                     ),
                   )),
-              //bottom operation(control) bar
-
-              //trash bin
-              //text canvas
               for (int i =0;i<bluredface.length;i++) blurFace(i),
-              Container(
-                  width: 1000,
-                  height: 1000,
-                  color: Colors.transparent,
-                  child: Listener(
-                    onPointerMove: (event2){
-                      print("working");
-                      Face? targetFace;
-                      for (int i =0;i<faceNumber;i++) {
-                        if(i<recognisedface.length)
-                        {
-                          if(event2.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
+              for (int i =0;i<bluredOCR.length;i++) blurOCR(i),
+              Positioned.fromRect(
+                rect: Rect.fromLTWH(0, headerHeight, screenWidth, canvasHeight),
+                child: Container(
+                    width: screenWidth,
+                    height: canvasHeight,
+                    color: Colors.transparent,
+                    child: Listener(
+                      onPointerMove: (event2){
+                        print("working");
+                        Face? targetFace;
+                        TextElement? targetOCR;
+                        for (int i =0;i<faceNumber;i++) {
+                          if(i<recognisedface.length)
                           {
-                            if(event2.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                            if(event2.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx * size_width / imageWidth)&&event2.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx * size_width / imageWidth))
                             {
-                              targetFace=recognisedface[i];
-                              break;
+                              if(event2.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy * size_height / imageHeight)&&event2.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy * size_height / imageHeight))
+                              {
+                                targetFace=recognisedface[i];
+                                break;
+                              }
                             }
-                          }
-                        }
-                        else{
-                          if(event2.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
-                          {
-                            if(event2.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
-                            {
-                              targetFace=bluredface[i-recognisedface.length];
-                              break;
-                            }
-                          }
-
-                        }
-                      }
-                      if(targetFace!=null){
-                        if(event2.localPosition.dx>(targetFace.boundingBox.topLeft.dx/1.75)&&event2.localPosition.dx<(targetFace.boundingBox.bottomRight.dx/1.75))
-                          if(event2.localPosition.dy>(targetFace.boundingBox.bottomRight.dy/1.75+65)&&event2.localPosition.dy<(targetFace.boundingBox.topLeft.dy/1.75+65))
-                          {
-                            eraseAccept=false;
                           }
                           else{
-                            eraseAccept=true;
-                          }
-
-                        if(eraseAccept)
-                        {
-                          eraseAccept=false;
-                          faceNumber=faceNumber-1;
-                          setState(() {
-                            recognisedface.remove(targetFace);
-                            bluredface.remove(targetFace);
-                            print("remove");
-                          });
-
-                        }
-                      }
-                    },
-                    onPointerDown: (event){
-                      for (int i =0;i<faceNumber;i++) {
-                        if(i<recognisedface.length)
-                        {
-                          if(event.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx/1.75))
-                          {
-                            if(event.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy/1.75+65))
+                            if(event2.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx * size_width / imageWidth)&&event2.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx * size_width / imageWidth))
                             {
-                              setState(() {
-                                bluredface.add(recognisedface[i]);
-                                recognisedface.remove(recognisedface[i]);
-                              });
-                              break;
+                              if(event2.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy * size_height / imageHeight)&&event2.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy * size_height / imageHeight))
+                              {
+                                targetFace=bluredface[i-recognisedface.length];
+                                break;
+                              }
+                            }
+
+                          }
+                        }
+                        for (int i =0;i<ocrNumber;i++) {
+                          if(i<_elements.length)
+                          {
+                            if(event2.localPosition.dx>(_elements[i].boundingBox.topLeft.dx * size_width / imageWidth)&&event2.localPosition.dx<(_elements[i].boundingBox.bottomRight.dx * size_width / imageWidth))
+                            {
+                              if(event2.localPosition.dy<(_elements[i].boundingBox.bottomRight.dy * size_height / imageHeight)&&event2.localPosition.dy>(_elements[i].boundingBox.topLeft.dy * size_height / imageHeight))
+                              {
+                                targetOCR=_elements[i];
+                                break;
+                              }
                             }
                           }
-                        }
-                        else{
-                          if(event.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx/1.75)&&event.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx/1.75))
-                          {
-                            if(event.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy/1.75+65)&&event.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy/1.75+65))
+                          else{
+                            if(event2.localPosition.dx>(bluredOCR[i-_elements.length].boundingBox.topLeft.dx * size_width / imageWidth)&&event2.localPosition.dx<(bluredOCR[i-_elements.length].boundingBox.bottomRight.dx * size_width / imageWidth))
                             {
-                              setState(() {
-                                recognisedface.add(bluredface[i-recognisedface.length]);
-                                bluredface.remove(bluredface[i-recognisedface.length+1]);
-                              });
-                              break;
+                              if(event2.localPosition.dy<(bluredOCR[i-_elements.length].boundingBox.bottomRight.dy * size_height / imageHeight)&&event2.localPosition.dy>(bluredOCR[i-_elements.length].boundingBox.topLeft.dy * size_height / imageHeight))
+                              {
+                                targetOCR=bluredOCR[i-_elements.length];
+                                break;
+                              }
                             }
+
                           }
-
                         }
-                      }
-                    },
+                        if(targetFace!=null){
+                          if(event2.localPosition.dx>(targetFace.boundingBox.topLeft.dx * size_width / imageWidth)&&event2.localPosition.dx<(targetFace.boundingBox.bottomRight.dx * size_width / imageWidth))
+                            if(event2.localPosition.dy>(targetFace.boundingBox.bottomRight.dy * size_height / imageHeight)&&event2.localPosition.dy<(targetFace.boundingBox.topLeft.dy * size_height / imageHeight))
+                            {
+                              eraseAccept=false;
+                            }
+                            else{
+                              eraseAccept=true;
+                            }
 
-                    child: Stack(children:[
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          _buildBrushCanvas(),
-                          //buildTextCanvas(),
-                        ],
-                      ),
-                      CustomPaint(
-                        painter:BackgroundPainter(),
-                      ),
-                      CustomPaint(
-                        painter:BackgroundPainter2(
-                            _elements
+                          if(eraseAccept)
+                          {
+                            eraseAccept=false;
+                            faceNumber=faceNumber-1;
+                            setState(() {
+                              recognisedface.remove(targetFace);
+                              bluredface.remove(targetFace);
+                              print("remove");
+                            });
+
+                          }
+                        }
+                        if(targetOCR!=null){
+                          if(event2.localPosition.dx>(targetOCR.boundingBox.topLeft.dx * size_width / imageWidth)&&event2.localPosition.dx<(targetOCR.boundingBox.bottomRight.dx * size_width / imageWidth))
+                            if(event2.localPosition.dy>(targetOCR.boundingBox.bottomRight.dy * size_height / imageHeight)&&event2.localPosition.dy<(targetOCR.boundingBox.topLeft.dy * size_height / imageHeight))
+                            {
+                              eraseAccept=false;
+                            }
+                            else{
+                              eraseAccept=true;
+                            }
+
+                          if(eraseAccept)
+                          {
+                            eraseAccept=false;
+                            ocrNumber=ocrNumber-1;
+                            setState(() {
+                              _elements.remove(targetOCR);
+                              bluredOCR.remove(targetOCR);
+                              print("remove");
+                            });
+
+                          }
+                        }
+                      },
+                      // onPointerDown: (event){
+                      //   for (int i =0;i<faceNumber;i++) {
+                      //     if(i<recognisedface.length)
+                      //     {
+                      //       if(event.localPosition.dx>(recognisedface[i].boundingBox.topLeft.dx * size_width / imageWidth)&&event.localPosition.dx<(recognisedface[i].boundingBox.bottomRight.dx * size_width / imageWidth))
+                      //       {
+                      //         if(event.localPosition.dy<(recognisedface[i].boundingBox.bottomRight.dy * size_height / imageHeight)&&event.localPosition.dy>(recognisedface[i].boundingBox.topLeft.dy * size_height / imageHeight))
+                      //         {
+                      //           setState(() {
+                      //             bluredface.add(recognisedface[i]);
+                      //             recognisedface.remove(recognisedface[i]);
+                      //           });
+                      //           break;
+                      //         }
+                      //       }
+                      //     }
+                      //     else{
+                      //       if(event.localPosition.dx>(bluredface[i-recognisedface.length].boundingBox.topLeft.dx * size_width / imageWidth)&&event.localPosition.dx<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dx * size_width / imageWidth))
+                      //       {
+                      //         if(event.localPosition.dy<(bluredface[i-recognisedface.length].boundingBox.bottomRight.dy * size_height / imageHeight)&&event.localPosition.dy>(bluredface[i-recognisedface.length].boundingBox.topLeft.dy * size_height / imageHeight))
+                      //         {
+                      //           setState(() {
+                      //             recognisedface.add(bluredface[i-recognisedface.length]);
+                      //             bluredface.remove(bluredface[i-recognisedface.length+1]);
+                      //           });
+                      //           break;
+                      //         }
+                      //       }
+
+                      //     }
+                      //   }
+                      //   for (int i =0;i<ocrNumber;i++) {
+                      //     if(i<_elements.length)
+                      //     {
+                      //       if(event.localPosition.dx>(_elements[i].boundingBox.topLeft.dx * size_width / imageWidth)&&event.localPosition.dx<(_elements[i].boundingBox.bottomRight.dx * size_width / imageWidth))
+                      //       {
+                      //         if(event.localPosition.dy<(_elements[i].boundingBox.bottomRight.dy * size_height / imageHeight)&&event.localPosition.dy>(_elements[i].boundingBox.topLeft.dy * size_height / imageHeight))
+                      //         {
+                      //           setState(() {
+                      //             bluredOCR.add(_elements[i]);
+                      //             _elements.remove(_elements[i]);
+                      //           });
+                      //           break;
+                      //         }
+                      //       }
+                      //     }
+                      //     else{
+                      //       if(event.localPosition.dx>(bluredOCR[i-_elements.length].boundingBox.topLeft.dx * size_width / imageWidth)&&event.localPosition.dx<(bluredOCR[i-_elements.length].boundingBox.bottomRight.dx * size_width / imageWidth))
+                      //       {
+                      //         if(event.localPosition.dy<(bluredOCR[i-_elements.length].boundingBox.bottomRight.dy * size_height / imageHeight)&&event.localPosition.dy>(bluredOCR[i-_elements.length].boundingBox.topLeft.dy * size_height / imageHeight))
+                      //         {
+                      //           setState(() {
+                      //             _elements.add(bluredOCR[i-_elements.length]);
+                      //             bluredOCR.remove(bluredOCR[i-_elements.length+1]);
+                      //           });
+                      //           break;
+                      //         }
+                      //       }
+
+                      //     }
+                      //   }
+                      // },
+                      child: Stack(children:[
+                        Container(
+                          width: screenWidth,
+                          height: canvasHeight,
+                          child: CustomPaint(
+                            painter:BackgroundPainter(),
+                          ),
                         ),
-                      )
-                    ]
-                    ),
-                  )
+                        Container(
+                          width: screenWidth,
+                          height: canvasHeight,
+                          child: CustomPaint(
+                            painter:BackgroundPainter2(_elements),
+                          ),
+                        ),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            _buildBrushCanvas(),
+                            //buildTextCanvas(),
+                          ],
+                        ),
+                      ]),
+                    )
+                ),
               ),
+              // Positioned.fromRect(
+              //   rect: Rect.fromLTWH(0,headerHeight,screenWidth,canvasHeight),
+              //   child: Stack(
+              //     alignment: Alignment.center,
+              //     children: [
+              //       _buildBrushCanvas(),
+              //     ],
+              //   ),),
+
               ValueListenableBuilder<bool>(
                   valueListenable: _panelController.showAppBar,
                   builder: (ctx, value, child) {
@@ -511,14 +716,75 @@ class ImageEditorState extends State<ImageEditor>
       width: screenWidth,
       height: bottomBarHeight,
       padding: EdgeInsets.only(left: 16, right: 16, bottom: windowBottomBarHeight),
-      child: Column(
+      child: Row(
         children: [
+          Expanded(
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+                  child : _buildButton(OperateType.mosaic, '수동 모자이크', onPressed: () {
+                    if(painterController.drawStyle!=DrawStyle.mosaic)
+                    {
+                      setState(() {
+                        switchPainterMode(DrawStyle.mosaic);
+                      });
+                    }
+                    else{
+                      setState(() {
+                        switchPainterMode(DrawStyle.non);
+                      });
+                    }
+                  }
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [ Padding(
+                padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+                child : _buildButton(OperateType.autoMasaic, '자동 모자이크', onPressed: () {
+                  autoMosc=autoMosc+1;
+                  print(autoMosc);
+                  if(autoMosc%2==1)
+                  {
+                    for(int i=0;i<faceNumber;i++) {
+                      bluredface.add(recognisedface[0]);
+                      recognisedface.remove(recognisedface[0]);
+                    }
+                    for(int i=0;i<ocrNumber;i++) {
+                      bluredOCR.add(_elements[0]);
+                      _elements.remove(_elements[0]);
+                    }
+                    setState(() {
+                    });
+                  }
+                  else{
+                    for(int i=0;i<faceNumber;i++) {
+                      recognisedface.add(bluredface[0]);
+                      bluredface.remove(bluredface[0]);
+                    }
+                    for(int i=0;i<ocrNumber;i++) {
+                      _elements.add(bluredOCR[0]);
+                      bluredOCR.remove(bluredOCR[0]);
+                    }
+                    setState(() {
+                    });
+                  }
+                }
+                ),
+              ),
+              ],
+            ),
+          ),
           Expanded(
             child: ValueListenableBuilder<OperateType>(
               valueListenable: _panelController.operateType,
               builder: (ctx, value, child) {
                 return Opacity(
-                  opacity: _panelController.show2ndPanel() ? 1 : 0,
+                  opacity: _panelController.show2ndPanel() ? 1 : 1,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -526,40 +792,13 @@ class ImageEditorState extends State<ImageEditor>
                           padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                           child:
                           IconButton(onPressed:undo,
-                              icon: Icon(Icons.arrow_back_ios)))
+                            icon: Icon(Icons.arrow_back_ios),color: Colors.greenAccent,))
                     ],
                   ),
                 );
               },
             ),
           ),
-          Expanded(
-            child: Row(
-              children: [
-                _buildButton(OperateType.mosaic, '수동 모자이크', onPressed: () {
-                  if(painterController.drawStyle!=DrawStyle.mosaic)
-                  {
-                    setState(() {
-                      print("hi");
-                      switchPainterMode(DrawStyle.mosaic);
-                    });
-                  }
-                  else{
-                    setState(() {
-                      print("hi2");
-                      switchPainterMode(DrawStyle.non);
-                    });
-                  }
-                }),
-                OutlinedButton(onPressed: () {
-                  for(int i=0;i<faceNumber;i++)
-                  {
-                    blurFace(i)
-                  }
-                }, child: Text("자동 모자이크"), )
-              ],
-            ),
-          )
         ],
       ),
     );
@@ -573,7 +812,7 @@ class ImageEditorState extends State<ImageEditor>
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         alignment: Alignment.center,
-        child: Image.file(widget.originImage,fit: BoxFit.fitWidth,height: double.infinity,width: double.infinity,),
+        child: Image.file(widget.originImage,fit: BoxFit.fill,height: double.infinity,width: double.infinity),
       ),
     );
   }
@@ -606,7 +845,13 @@ class ImageEditorState extends State<ImageEditor>
   Widget _buildButton(OperateType type, String txt, {VoidCallback? onPressed}) {
     return GestureDetector(
       onTap: () {
-        _panelController.switchOperateType(type);
+        if(_panelController.isCurrentOperateType(type))
+        {
+          _panelController.switchOperateType(OperateType.brush);
+        }
+        else{
+          _panelController.switchOperateType(type);
+        }
         onPressed?.call();
       },
       child: ValueListenableBuilder(
@@ -618,11 +863,11 @@ class ImageEditorState extends State<ImageEditor>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                getOperateTypeRes(type, choosen: painterController.drawStyle==DrawStyle.mosaic),
+                getOperateTypeRes(type, choosen: _panelController.isCurrentOperateType(type)),
                 Text(
                   txt,
                   style: TextStyle(
-                      color: painterController.drawStyle==DrawStyle.mosaic
+                      color: _panelController.isCurrentOperateType(type)
                           ? Colors.greenAccent : Colors.grey, fontSize: 11),
                 )
               ],
